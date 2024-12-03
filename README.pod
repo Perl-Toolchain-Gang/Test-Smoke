@@ -78,7 +78,7 @@ If something useful happens, do it every night using a scheduler.
 
 =head1 CONFIGURATION
 
-Please also read F<README2.md> for instructions.
+Please also read F<HOWTO.md> for instructions.
 
 =over 4
 
