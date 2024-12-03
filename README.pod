@@ -254,16 +254,6 @@ As always, have the appropriate amount of fun!
 
 =head1 SEE ALSO
 
-L<ReleaseNotes>, L<FAQ>
-
-=head1 TODO
-
-=over 4
-
-=item * More test-suite
-
-=item * VMS?
-
-=back
+L<FAQ>
 
 =cut
