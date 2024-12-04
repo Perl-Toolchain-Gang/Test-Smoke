@@ -21,3 +21,4 @@ MYMETA\..+
 cover_db/
 sandbox/
 bin/configsmoke.pl
+\.github
