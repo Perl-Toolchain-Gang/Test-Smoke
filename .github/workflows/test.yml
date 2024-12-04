@@ -26,4 +26,4 @@ jobs:
       run: prove -lr t/
     
     - name: Run author tests
-      run: prove -lr t/
+      run: prove -lr xt/
