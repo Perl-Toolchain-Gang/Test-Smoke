@@ -19,7 +19,6 @@ jobs:
       with:
         perl-version: '5.40'
 
-      run: cpanm --quiet --installdeps .
     - name: Install dependencies
       run: rm Makefile.PL && cpanm --quiet --installdeps .
 
