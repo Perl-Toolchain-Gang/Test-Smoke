@@ -22,3 +22,4 @@ cover_db/
 sandbox/
 bin/configsmoke.pl
 \.github
+Makefile.PL.bak

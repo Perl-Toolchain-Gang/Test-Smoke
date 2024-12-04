@@ -20,10 +20,10 @@ jobs:
         perl-version: '5.38'
 
     - name: Install dependencies
-      run: rm Makefile.PL && cpanm --quiet --installdeps .
+      run: mv Makefile.PL Makefile.PL.bak && cpanm --quiet --installdeps .
 
     - name: Run tests
       run: prove -lr t/
     
     - name: Run author tests
-      run: prove -lr xt/
+      run: mv Makefile.PL.bak Makefile.PL && prove -lr xt/
