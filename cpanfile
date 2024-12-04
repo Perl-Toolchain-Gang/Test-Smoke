@@ -7,3 +7,4 @@ requires 'autodie', '0';
 requires 'Getopt::Long', '2.39';
 requires 'Test::NoWarnings', '0';
 requires 'Test::Pod', '0';
+requires 'Test::Pod::Coverage', '0';
