@@ -17,10 +17,13 @@ jobs:
     - name: Set up Perl
       uses: shogo82148/actions-setup-perl@v1
       with:
-        perl-version: '5.40'
+        perl-version: '5.38'
 
     - name: Install dependencies
       run: rm Makefile.PL && cpanm --quiet --installdeps .
 
     - name: Run tests
+      run: prove -lr t/
+    
+    - name: Run author tests
       run: prove -lr t/
