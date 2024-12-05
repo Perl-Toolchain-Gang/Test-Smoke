@@ -149,7 +149,7 @@ run time of Test::Smoke.
 
     http://metacpan.org/pod/Test::Smoke/
 
-    https://github.com/abeltje/Test-Smoke
+    https://github.com/Perl-Toolchain-Gang/Test-Smoke
 
 =item B<Archives>
 
