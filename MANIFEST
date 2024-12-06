@@ -5,7 +5,7 @@ MANIFEST.SKIP
 Makefile.PL
 HOWTO.md
 cpanfile
-README.pod
+README
 bin/chkbcfg.pl
 bin/patchtree.pl
 bin/smokestatus.pl

@@ -11,8 +11,8 @@ Make sure you are in the directory where you installed the software!
 
 or on windows:
 
-    C:>tsconfigsmoke           # will generate smokecurrent.bat
-    C:>smokecurrent
+    C:> tsconfigsmoke           # will generate smokecurrent.bat
+    C:> smokecurrent
 
 For the impatient: see the section L</"GETTING STARTED">
 
@@ -92,7 +92,7 @@ program. Please see its L<documentation|tsconfigsmoke.pl>.
 At the moment there are no guidelines of how to change the
 build-configuration best to fit the needs of perl5-porters while still
 getting as much smoke out of the test as possible, simply because the
-needs of perl5-porters change over time:).
+needs of perl5-porters change over time.
 
 This also makes Test::Smoke somewhat volatile, as we aim to please the
 perl5-porters as much as possible, to help make perl even better, more
@@ -195,9 +195,6 @@ Copyright (C) 2001-2023
 This suite is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself, without consulting the author.
 
-(Future) Co-Authors and or contributors should agree to this before
-submitting patches.
-
 See:
 
 =over 4
@@ -215,11 +212,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 =head1 AUTHOR
 
-The perl core test smoke suite is maintained by Abe Timmerman
+The perl core test smoke suite used to be maintained by Abe Timmerman
 <abeltje@cpan.org>.
 
 H.Merijn Brand <h.m.brand@hccnet.nl> in dialogue and consultation with
-Michael Schwern <schwern@pobox.com>, the Perl QA pumpkin.
+Michael Schwern <schwern@pobox.com>, a former Perl QA pumpkin.
 
 Contributors and/or co-authors:
 
