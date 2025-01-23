@@ -1,3 +1,6 @@
+1.84 2025-??-??
+ - Remove xt/sysinfo/sysinfo_macos.t that was moved to System::Info 
+
 1.83 2024-12-07
  - "Hello World!" from tib
  - Maintenance release: cleaning, moving some files in distribution/repository
