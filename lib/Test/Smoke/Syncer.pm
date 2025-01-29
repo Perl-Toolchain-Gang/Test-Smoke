@@ -92,7 +92,7 @@ my %CONFIG = (
     },
 
 # these settings have to do with synctype==ftp
-    df_ftphost => 'localhost',
+    df_ftphost => 'ftp.example.com',
     df_ftpport => 21,
     df_ftpsdir => '/',
     df_ftpcdir => '/',
