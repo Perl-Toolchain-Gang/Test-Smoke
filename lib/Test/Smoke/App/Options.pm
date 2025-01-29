@@ -42,6 +42,10 @@ sub synctree_config { # synctree.pl
             fsync => [
                 fdir(),
             ],
+            ftp  => [
+                ftpserver(),
+                ftpport(),
+            ],
         },
     );
 }
@@ -520,6 +524,30 @@ sub force_c_locale {
         configtype => 'prompt_yn',
         configalt  => sub { [qw/ N y /] },
         configdft  => sub {'n'},
+    );
+}
+
+sub ftpserver {
+    return $opt->new(
+        name       => 'ftpserver',
+        option     => '=s',
+        default    => 'ftp.example.com',
+        helptext   => "The FTP server",
+        configtext => "What is the URL of your FTP server?",
+        configalt  => sub { [] },
+        configord  => 1,
+    );
+}
+
+sub ftpport {
+    return $opt->new(
+        name       => 'ftpport',
+        option     => '=i',
+        default    => 21,
+        helptext   => "The FTP port",
+        configtext => "What is the port of your FTP server?",
+        configalt  => sub { [] },
+        configord  => 2,
     );
 }
 
@@ -1165,7 +1193,7 @@ sub sync_type {
     return $opt->new(
         name       => 'sync_type',
         option     => '=s',
-        allow      => [qw/git rsync copy/],
+        allow      => [qw/git rsync copy ftp/],
         default    => 'git',
         helptext   => 'The source tree sync method.',
         configtext => 'How would you like to sync the perl-source?',

@@ -1,4 +1,8 @@
 1.84 2025-??-??
+ - Convert APC (deprecated) FTP to general purpose FTP sync:
+   - Make FTP Host and FTP Port configurable
+   - Do not sync symlinks (was breaking permissions)
+   - Promote again FTP sync as available sync
  - Remove xt/sysinfo/sysinfo_macos.t that was moved to System::Info 
 
 1.83 2024-12-07

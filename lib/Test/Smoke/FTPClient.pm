@@ -12,12 +12,13 @@ our $VERSION = '0.011';
 my %CONFIG = (
     df_fserver  => undef,
     df_fuser    => 'anonymous',
-    df_fpasswd  => 'smokers@perl.org',
-    df_v        => 0,
+    df_fpasswd  => '',
+    df_fport    => 21,
+    df_v        => 1,
     df_fpassive => 1,
     df_ftype    => undef,
 
-    valid      => [qw( fuser fpasswd fpassive ftype )],
+    valid      => [qw( fport fuser fpasswd fpassive ftype )],
 );
 my @sn = qw( B KB MB GB TB );
 
@@ -103,8 +104,9 @@ Returns true for success after connecting and login.
 sub connect {
     my $self = shift;
 
-    $self->{v} and print "Connecting to '$self->{fserver}' ";
+    $self->{v} and print "Connecting to '$self->{fserver}' with port '$self->{fport}' ";
     $self->{client} = Net::FTP->new( $self->{fserver},
+        Port    => $self->{fport},
         Passive => $self->{fpassive},
         Debug   => ( $self->{v} > 2 ),
     );
@@ -231,7 +233,8 @@ sub __do_mirror {
     foreach my $entry ( sort { $a->{type} cmp $b->{type} ||
                                $a->{name} cmp $b->{name} } @list ) {
 
-        if ( $entry->{type} eq 'd' ) {
+        if ( $entry->{type} eq 'l' ) {
+        } elsif ( $entry->{type} eq 'd' ) {
             $entry->{name} =~ m/^\.\.?$/ and next;
             my $new_locald = File::Spec->catdir( $localdir, $entry->{name} );
             unless ( -d $new_locald ) {

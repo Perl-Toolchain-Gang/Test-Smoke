@@ -92,13 +92,14 @@ my %CONFIG = (
     },
 
 # these settings have to do with synctype==ftp
-    df_ftphost => 'public.activestate.com',
-    df_ftpsdir => '/pub/apc/perl-current',
-    df_ftpcdir => '/pub/apc/perl-current-diffs',
+    df_ftphost => 'localhost',
+    df_ftpport => 21,
+    df_ftpsdir => '/',
+    df_ftpcdir => '/',
     df_ftype   => undef,
 
     ftp        => {
-        allowed  => [qw(ftphost ftpusr ftppwd ftpsdir ftpcdir ftype)],
+        allowed  => [qw(ftphost ftpport ftpusr ftppwd ftpsdir ftpcdir ftype)],
         required => [qw()],
         class    => 'Test::Smoke::Syncer::FTP',
     },
