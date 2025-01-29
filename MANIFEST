@@ -178,7 +178,6 @@ t/smoke.t
 t/smoked_config.t
 t/smoker.t
 t/syncer_copy.t
-t/syncer_ftp.t
 t/syncer_ftpclient.t
 t/syncer_git.t
 t/syncer_link.t
