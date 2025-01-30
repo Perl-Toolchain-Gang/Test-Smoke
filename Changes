@@ -1,4 +1,5 @@
 1.84 2025-??-??
+ - Explicit rsync protocol for default rsync URL
  - Convert APC (deprecated) FTP to general purpose FTP sync:
    - Make FTP Host and FTP Port configurable
    - Do not sync symlinks (was breaking permissions)

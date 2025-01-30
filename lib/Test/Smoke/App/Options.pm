@@ -1047,7 +1047,7 @@ sub rsyncsource {
     return $opt->new(
         name       => 'source',
         option     => '=s',
-        default    => 'dromedary.p5h.org:5872::perl-current',
+        default    => 'rsync://dromedary.p5h.org:5872/perl-current/',
         helptext   => "The remote location of the rsync archive.",
         configtext => "Where would you like to rsync from?",
         configtype => 'prompt',
