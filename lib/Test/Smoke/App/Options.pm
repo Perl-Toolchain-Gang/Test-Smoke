@@ -640,7 +640,7 @@ sub harness3opts {
         default    => '',
         helptext   => "Extra options to pass to harness v3+.",
         configtext => "Extra options for Test::Harness 3
-\tFor parellel testing use; 'j5'",
+\tFor parallel testing use; 'j5'",
         configdft  => sub {''},
     );
 }
