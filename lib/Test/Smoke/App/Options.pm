@@ -43,7 +43,7 @@ sub synctree_config { # synctree.pl
                 fdir(),
             ],
             ftp  => [
-                ftpserver(),
+                ftphost(),
                 ftpport(),
             ],
         },
@@ -527,9 +527,9 @@ sub force_c_locale {
     );
 }
 
-sub ftpserver {
+sub ftphost {
     return $opt->new(
-        name       => 'ftpserver',
+        name       => 'ftphost',
         option     => '=s',
         default    => 'ftp.example.com',
         helptext   => "The FTP server",

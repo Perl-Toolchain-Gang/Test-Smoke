@@ -48,7 +48,7 @@ sub sync {
     $self->pre_sync;
     require Test::Smoke::FTPClient;
 
-    my $fc = Test::Smoke::FTPClient->new( $self->{ftphost}, {
+    my $fc = Test::Smoke::FTPClient->new( $self->{ftphost}, $self->{ftpport}, {
         v       => $self->{v},
         passive => $self->{ftppassive},
         fuser   => $self->{ftpusr},
@@ -58,7 +58,7 @@ sub sync {
 
     $fc->connect;
 
-    $fc->mirror( @{ $self }{qw( ftpsdir ddir )}, 0 ) or return;
+    $fc->mirror( @{ $self }{qw( ftpsdir ddir )}, 1 ) or return;
 
     $self->{client} = $fc;
 

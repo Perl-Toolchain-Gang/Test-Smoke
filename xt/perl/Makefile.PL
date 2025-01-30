@@ -1,4 +1,4 @@
-#! /usr/bin/perl -w
+#!/usr/bin/perl -w
 use strict;
 
 use FindBin;
@@ -102,7 +102,6 @@ minitest: test-prep
 
 distclean:
 	rm -f perl miniperl exeperl t/perl
-	rm -f *~
 	rm -f Makefile
 	rm -f config.sh
 

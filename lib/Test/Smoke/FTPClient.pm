@@ -10,10 +10,10 @@ use Test::Smoke::Util qw( clean_filename time_in_hhmm );
 our $VERSION = '0.011';
 
 my %CONFIG = (
-    df_fserver  => undef,
+    df_fhost    => undef,
+    df_fport    => 21,
     df_fuser    => 'anonymous',
     df_fpasswd  => '',
-    df_fport    => 21,
     df_v        => 1,
     df_fpassive => 1,
     df_ftype    => undef,
@@ -71,11 +71,17 @@ sub  new {
     my $class = shift;
 
     my $server = shift;
+    my $port = shift;
 
     unless ( $server ) {
         require Carp;
-        Carp::croak( "Usage: Test::Smoke::FTPClient->new( \$server )" );
+        Carp::croak( "Usage: Test::Smoke::FTPClient->new( \$server, \$port )" );
     };
+    unless ( $port ) {
+        require Carp;
+        Carp::croak( "Usage: Test::Smoke::FTPClient->new( \$server, \$port )" );
+    };
+
 
     my %args_raw = @_ ? UNIVERSAL::isa( $_[0], 'HASH' ) ? %{ $_[0] } : @_ : ();
 
@@ -88,7 +94,8 @@ sub  new {
         my $value = exists $args{$_} ? $args{ $_ } : $CONFIG{ "df_$_" };
         ( $_ => $value )
     } ( v => @{ $CONFIG{ valid } } );
-    $fields{fserver} = $server;
+    $fields{fhost} = $server;
+    $fields{fport} = $port;
     $fields{v} ||= 0;
 
     return bless \%fields, $class;
@@ -104,8 +111,8 @@ Returns true for success after connecting and login.
 sub connect {
     my $self = shift;
 
-    $self->{v} and print "Connecting to '$self->{fserver}' with port '$self->{fport}' ";
-    $self->{client} = Net::FTP->new( $self->{fserver},
+    $self->{v} and print "Connecting to '$self->{fhost}' with port '$self->{fport}' ";
+    $self->{client} = Net::FTP->new( $self->{fhost},
         Port    => $self->{fport},
         Passive => $self->{fpassive},
         Debug   => ( $self->{v} > 2 ),
@@ -120,7 +127,7 @@ sub connect {
     $self->{v} and print "Authenticating ";
     unless ( $self->{client}->login( $self->{fuser}, $self->{fpasswd} ) ) {
         $self->{error} = $@ ||
-            "Could not login($self->{fuser}) on $self->{fserver}";
+            "Could not login($self->{fuser}) on $self->{fhost}";
         $self->{v} and print "NOT OK ($self->{error})\n";
         return;
     }

@@ -29,6 +29,8 @@ fdir
 force_c_locale
 from
 fsync
+ftphost
+ftpport
 gitbin
 gitbranchfile
 gitdfbranch

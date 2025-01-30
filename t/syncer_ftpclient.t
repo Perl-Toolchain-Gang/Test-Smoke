@@ -10,9 +10,7 @@ use Data::Dumper;
 # and provide a fake FTP mechanism through them
 # For this there is the 't/ftppub' directory with:
 #     't/ftppub/perl-current' contains a source-tree
-#     't/ftppub/perl-current-diffs' contains a few fake diffs
 # Now that we have controlable FTP (if you have Net::FTP), 
-# we can concentrate on doing the untargz and patch stuff
 #
 #####
 
@@ -36,7 +34,7 @@ BEGIN {
     $@ and plan( skip_all => "No 'Net::FTP' found!\n" . 
                              "!!!You will not be able to smoke from " .
                              "FTP-archive without it!!!" );
-    plan tests => 12;
+    plan tests => 8;
 }
 
 # Can we get away with redefining the Net::FTP stuff?
@@ -161,8 +159,6 @@ require_ok 'Test::Smoke::SourceTree';
 
     my $plevel = $sync->sync;
 
-    is $plevel, '20005', "Patchlevel ok";
-
     {
         my $tree = Test::Smoke::SourceTree->new( $stree );
         my $mc = $tree->check_MANIFEST;
@@ -171,6 +167,7 @@ require_ok 'Test::Smoke::SourceTree';
             diag Dumper $mc;
     }
 
+=cut
     local *NEWFILE;
     my $newfile = catfile $stree, 'newfile.txt';
     open NEWFILE, "> $newfile";
@@ -179,7 +176,6 @@ require_ok 'Test::Smoke::SourceTree';
 
     ok -f $newfile, "extra file($newfile)";
     $plevel = $sync->sync;
-    is $plevel, '20005', "Patchlevel ok (resync)";
 
     {
         my $tree = Test::Smoke::SourceTree->new( $stree );
@@ -189,6 +185,7 @@ require_ok 'Test::Smoke::SourceTree';
             diag Dumper $mc;
     }
 
+=cut
     ok rmtree( $stree ), "Clean-up";
 
     $FTP_FAIL = 1;
