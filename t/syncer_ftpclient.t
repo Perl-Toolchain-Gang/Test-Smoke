@@ -34,7 +34,7 @@ BEGIN {
     $@ and plan( skip_all => "No 'Net::FTP' found!\n" . 
                              "!!!You will not be able to smoke from " .
                              "FTP-archive without it!!!" );
-    plan tests => 8;
+    plan tests => 10;
 }
 
 # Can we get away with redefining the Net::FTP stuff?
@@ -167,7 +167,6 @@ require_ok 'Test::Smoke::SourceTree';
             diag Dumper $mc;
     }
 
-=cut
     local *NEWFILE;
     my $newfile = catfile $stree, 'newfile.txt';
     open NEWFILE, "> $newfile";
@@ -185,7 +184,6 @@ require_ok 'Test::Smoke::SourceTree';
             diag Dumper $mc;
     }
 
-=cut
     ok rmtree( $stree ), "Clean-up";
 
     $FTP_FAIL = 1;
