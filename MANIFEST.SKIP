@@ -24,3 +24,4 @@ bin/configsmoke.pl
 \.github
 Makefile.PL.bak
 Test-Smoke-
+smokecurrent
