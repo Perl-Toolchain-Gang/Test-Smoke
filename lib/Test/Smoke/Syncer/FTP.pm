@@ -61,6 +61,7 @@ sub sync {
     $fc->mirror( @{ $self }{qw( ftpsdir ddir )}, 1 ) or return;
 
     $self->{client} = $fc;
+    $self->{v} = $fc->{v};
 
     my $cwd = cwd();
     chdir $self->{ddir} or croak("Cannot chdir($self->{ddir}): $!");
