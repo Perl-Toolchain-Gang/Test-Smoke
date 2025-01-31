@@ -25,5 +25,5 @@ jobs:
     - name: Run tests
       run: prove -lr t/
     
-    #- name: Run author tests
-    #  run: mv Makefile.PL.bak Makefile.PL && prove -l xt/
+    - name: Run author tests
+      run: mv Makefile.PL.bak Makefile.PL && prove -l xt/
