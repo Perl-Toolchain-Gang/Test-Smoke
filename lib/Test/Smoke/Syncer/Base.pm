@@ -209,7 +209,7 @@ sub version_from_patchlevel_h {
     my $self = shift;
 
     require Test::Smoke::Util;
-    return Test::Smoke::Util::version_from_patchelevel( $self->{ddir} );
+    return Test::Smoke::Util::version_from_patchlevel_h( $self->{ddir} );
 }
 
 =head2 is_git_dir()
