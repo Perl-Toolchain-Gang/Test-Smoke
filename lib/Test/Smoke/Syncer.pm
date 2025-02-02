@@ -34,33 +34,6 @@ my %CONFIG = (
         class    => 'Test::Smoke::Syncer::Rsync',
     },
 
-# these settings have to do with synctype==snapshot
-    df_ftp      => 'Net::FTP',
-    df_server   => 'github.com/Perl',
-    df_sdir     => '/pub/apc/perl-current-snap',
-    df_sfile    => '',
-    df_snapext  => 'tar.gz',
-
-    df_tar      => ( $^O eq 'MSWin32' ?
-        'Archive::Tar' : 'gzip -d -c %s | tar xf -' ),
-
-    df_patchup  => 0,
-    df_pserver  => 'github.com/Perl',
-    df_pdir     => '/pub/apc/perl-current-diffs',
-    df_ftpusr   => 'anonymous',
-    df_ftppwd   => 'smokers@perl.org',
-    df_unzip    => $^O eq 'MSWin32' ? 'Compress::Zlib' : 'gzip -dc',
-    df_patchbin => 'patch',
-    df_cleanup  => 1,
-    snapshot => {
-        allowed => [
-            qw( ftp server sdir sfile snapext tar ftpusr ftppwd
-                patchup pserver pdir unzip patchbin cleanup )
-        ],
-        required => [],
-        class    => 'Test::Smoke::Syncer::Snapshot',
-    },
-
 # these settings have to do with synctype==copy
     df_cdir    => undef,
 
@@ -102,6 +75,17 @@ my %CONFIG = (
         allowed  => [qw(ftphost ftpport ftpusr ftppwd ftpsdir ftpcdir ftype)],
         required => [qw()],
         class    => 'Test::Smoke::Syncer::FTP',
+    },
+
+# these settings have to do with synctype==snapshot
+    df_snapurl => 'example.com/uploads/',
+    df_snapfile => 'perl-blead.tar.gz',
+    df_snaptar => '',
+
+    snapshot   => {
+        allowed  => [qw(snapurl snapfile snaptar)],
+        required => [qw()],
+        class    => 'Test::Smoke::Syncer::Snapshot',
     },
 
 # synctype: git

@@ -46,6 +46,11 @@ sub synctree_config { # synctree.pl
                 ftphost(),
                 ftpport(),
             ],
+            snapshot  => [
+                snapurl(),
+                snapfile(),
+                snaptar(),
+            ],
         },
     );
 }
@@ -548,6 +553,42 @@ sub ftpport {
         configtext => "What is the port of your FTP server?",
         configalt  => sub { [] },
         configord  => 2,
+    );
+}
+
+sub snapurl {
+    return $opt->new(
+        name       => 'snapurl',
+        option     => '=s',
+        default    => 'example.com/uploads/',
+        helptext   => "The URL with path",
+        configtext => "What is the URL of the delivery?",
+        configalt  => sub { [] },
+        configord  => 1,
+    );
+}
+
+sub snapfile {
+    return $opt->new(
+        name       => 'snapfile',
+        option     => '=s',
+        default    => 'perl-blead.tar.gz',
+        helptext   => "The filename of the delivery",
+        configtext => "What is the filename of the delivery?",
+        configalt  => sub { [] },
+        configord  => 1,
+    );
+}
+
+sub snaptar {
+    return $opt->new(
+        name       => 'snaptar',
+        option     => '=s',
+        default    => '',
+        helptext   => "The tar/zip command to unarchive",
+        configtext => "What is the tar/zip command to use to unarchive the delivery?",
+        configalt  => sub { [] },
+        configord  => 1,
     );
 }
 
@@ -1193,7 +1234,7 @@ sub sync_type {
     return $opt->new(
         name       => 'sync_type',
         option     => '=s',
-        allow      => [qw/git rsync copy ftp/],
+        allow      => [qw/git rsync copy ftp snapshot/],
         default    => 'git',
         helptext   => 'The source tree sync method.',
         configtext => 'How would you like to sync the perl-source?',

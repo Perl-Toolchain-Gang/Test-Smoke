@@ -99,7 +99,7 @@ Returns a list of available syncer modules/programs (git, rsync)
 =cut
 
 sub get_avail_sync {
-    my @synctype = qw(copy hardlink ftp);
+    my @synctype = qw(copy hardlink ftp snapshot);
 
     unshift @synctype, 'rsync' if whereis( 'rsync' );
 

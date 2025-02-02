@@ -89,6 +89,9 @@ skip_tests
 smartsmoke
 smokedb_url
 smokeperl_config
+snapurl
+snapfile
+snaptar
 swbcc
 swcc
 sync

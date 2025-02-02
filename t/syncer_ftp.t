@@ -25,7 +25,7 @@ BEGIN {
     $@ and plan( skip_all => "No 'Net::FTP' found!\n" .
                              "!!!You will not be able to smoke from " .
                              "snapshots without it!!!" );
-    plan tests => 4;
+    plan tests => 3;
 }
 
 my $verbose = $ENV{SMOKE_VERBOSE} || 0;
@@ -111,9 +111,6 @@ SKIP: { # Here we try for 'Archive::Tar'/'Compress::Zlib'
 
     my $plevel  = $syncer->sync;
 
-    skip "Cannot find a 'patch' program", 1 unless $patch;
-    my $plevel2 = $syncer->patch_a_snapshot( $plevel );
-
 }
 
 SKIP: { # Here we try for gzip/tar
@@ -145,8 +142,6 @@ SKIP: { # Here we try for gzip/tar
     isa_ok( $syncer, 'Test::Smoke::Syncer::Snapshot' );
 
     my $plevel  = $syncer->sync;
-
-    is( $plevel, 20000, "Patchlevel $plevel by $syncer->{tar}" );
 
     skip "Can't seem to find 'gzip/gunzip/zcat'", 1 unless $gzip;
     skip "Cannot find a 'patch' program", 1 unless $patch;
