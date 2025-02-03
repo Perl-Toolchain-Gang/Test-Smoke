@@ -91,7 +91,6 @@ smokedb_url
 smokeperl_config
 snapurl
 snapfile
-snaptar
 swbcc
 swcc
 sync
