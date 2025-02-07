@@ -140,6 +140,7 @@ t/ftppub/perl-current/t/op/skip.t
 t/ftppub/perl-current/t/op/test.t
 t/ftppub/perl-current/win32/Makefile
 t/ftppub/perl-current/win32/makefile.mk
+t/ftppub/perl-current/.patch
 t/ftppub/pl_with_pn.h
 t/ftppub/snap/perl@19000.tgz
 t/ftppub/snap/perl@20000.tgz
