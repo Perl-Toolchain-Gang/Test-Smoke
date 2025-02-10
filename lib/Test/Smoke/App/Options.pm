@@ -48,7 +48,6 @@ sub synctree_config { # synctree.pl
             ],
             snapshot  => [
                 snapurl(),
-                snapfile(),
                 snaptar(),
             ],
         },
@@ -557,24 +556,16 @@ sub ftpport {
 }
 
 sub snapurl {
+    my $blead = "https://github.com/Perl/perl5/archive/refs/heads/blead.tar.gz";
+    #my $tag = "https://github.com/Perl/perl5/archive/refs/tags/v5.41.6.tar.gz";
+    #my $pr_domestic = "https://github.com/Perl/perl5/archive/refs/pull/22991/head.tar.gz";
+    #my $pr_from_fork = "https://github.com/Perl/perl5/archive/refs/pull/22981/head.tar.gz";
     return $opt->new(
         name       => 'snapurl',
         option     => '=s',
-        default    => 'example.com/uploads/',
+        default    => "$blead",
         helptext   => "The URL with path",
         configtext => "What is the URL of the delivery?",
-        configalt  => sub { [] },
-        configord  => 1,
-    );
-}
-
-sub snapfile {
-    return $opt->new(
-        name       => 'snapfile',
-        option     => '=s',
-        default    => 'perl-blead.tar.gz',
-        helptext   => "The filename of the delivery",
-        configtext => "What is the filename of the delivery?",
         configalt  => sub { [] },
         configord  => 1,
     );

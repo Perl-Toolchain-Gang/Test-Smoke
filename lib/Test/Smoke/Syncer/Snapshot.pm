@@ -24,7 +24,6 @@ This crates the new object. Keys for C<%args>:
 
   * ddir:      destination directory ( ./perl-current )
   * snapurl:   the server to get the download from
-  * snapfile:  the file to download
   * snaptar:   howto untar ( Archive::Tar or 'gzip -d -c %s | tar x -' )
   * v:         verbose
 
@@ -51,7 +50,11 @@ sub sync {
     $self->_extract_archive;
 
 
-    my $plevel = $self->check_dot_patch;
+    my $plevel = $self->check_dot_git_patch;
+
+    if (not defined $plevel) {
+        $self->check_dot_patch;
+    }
 
     $self->post_sync;
     return $plevel;
@@ -74,11 +77,14 @@ sub _fetch_archive {
         return undef;
     }
 
-    my $local_archive = File::Spec->catfile( $self->{ddir},
-                                          File::Spec->updir, $self->{snapfile} );
+    my @pieces = split "/", $self->{snapurl};
+    my $snapfile = pop @pieces;
+
+
+    my $local_archive = File::Spec->catfile( $self->{ddir}, File::Spec->updir, $snapfile );
     $local_archive = File::Spec->canonpath( $local_archive );
 
-    my $remote_archive = "$self->{snapurl}/$self->{snapfile}";
+    my $remote_archive = "$self->{snapurl}";
 
     $self->{v} and print "LWP::Simple::mirror($remote_archive)";
     my $result = LWP::Simple::mirror( $remote_archive, $local_archive );

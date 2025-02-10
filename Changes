@@ -1,4 +1,5 @@
 1.84 2025-??-??
+ - Make snapshot syncer compatible with git archive (e.g. GitHub tarballs)
  - Syncer copy: Make .patch if not already there
  - Explicit rsync protocol for default rsync URL
  - Convert APC (deprecated) FTP to general purpose FTP sync:
