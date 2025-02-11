@@ -1,5 +1,3 @@
-
-bin/archiverpt.pl
 AUTHORS
 Changes
 MANIFEST			This list of files
@@ -21,10 +19,7 @@ bin/tsrunsmoke.pl
 bin/tssendrpt.pl
 bin/tssmokeperl.pl
 bin/tssynctree.pl
-bin/W32Configure.pl
 Changes
-lib/fallback.pm
-lib/inc/Mail/Sendmail.pm
 bin/tsconfigsmoke.pl
 bin/tsw32configure.pl
 lib/configsmoke.pod
@@ -105,10 +100,6 @@ lib/Test/Smoke/w32current.cfg
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
-README
-ReleaseNotes
-t/10-fallback.t
-t/11-no_fallback.t
 t/15-factory-json.t
 t/20-logger.t
 t/15-factory-json.t

@@ -9,3 +9,4 @@ requires 'Test::NoWarnings', '0';
 requires 'Test::Pod', '0';
 requires 'Test::Pod::Coverage', '0';
 requires 'LWP::Simple', '0';
+requires 'Path::Tiny', '0';

@@ -1,4 +1,4 @@
-#!/home/jkeenan/perl5/perlbrew/perls/perl-5.28.0/bin/perl -w
+#!/usr/bin/env perl
 use strict;
 
 use File::Spec::Functions;
@@ -14,6 +14,7 @@ use File::Spec;
 use JSON;
 use Path::Tiny ();
 use POSIX ();
+
 
 my $app = Test::Smoke::App::SmokePerl->new(
     Test::Smoke::App::Options->smokeperl_config()
