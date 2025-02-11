@@ -32,10 +32,10 @@ Test::Smoke::FTPClient - Implement a mirror like object
 
     use Test::Smoke::FTPClient;
 
-    my $server = 'ftp.linux.activestate.com';
+    my $server = 'ftp.example.com';
     my $fc = Test::Smoke::FTPClient->new( $server );
 
-    my $sdir = '/pub/staff/gsar/APC/perl-current';
+    my $sdir = '/';
     my $ddir = '~/perlsmoke/perl-current';
     my $cleanup = 1; # like --delete for rsync
 
@@ -45,11 +45,6 @@ Test::Smoke::FTPClient - Implement a mirror like object
     $fc->bye;
 
 =head1 DESCRIPTION
-
-This module was written specifically to fetch a perl source-tree
-from the APC. It will not suffice as a general purpose mirror module!
-It only distinguishes between files and directories and relies on the
-output of the C<< Net::FTP->dir >> method.
 
 This solution is B<slow>, you'd better use B<rsync>!
 

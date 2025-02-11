@@ -9,9 +9,8 @@ use Cwd;
 
 =head1 Test::Smoke::Syncer::FTP
 
-This handles syncing by getting the source-tree from ActiveState's APC
-repository. It uses the C<Test::Smoke::FTPClient> that implements a
-mirror function.
+This handles syncing by getting the source-tree from a FTP server.
+It uses the C<Test::Smoke::FTPClient> that implements a mirror function.
 
 =cut
 
@@ -21,11 +20,10 @@ use File::Spec::Functions;
 
 Known args for this class:
 
-    * ftphost (public.activestate.com)
+    * ftphost (ftp.example.com)
     * ftpusr  (anonymous)
-    * ftppwd  (smokers@perl.org)
-    * ftpsdir (/pub/apc/perl-????)
-    * ftpcdir (/pub/apc/perl-????-diffs)
+    * ftppwd (?)
+    * ftpsdir (/)
     * ftype (undef|binary|ascii)
 
     * ddir
@@ -37,7 +35,6 @@ Known args for this class:
 
 This does the actual syncing:
 
-    * Check {ftpcdir} for the latest changenumber
     * Mirror
 
 =cut

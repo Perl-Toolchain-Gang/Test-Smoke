@@ -68,11 +68,10 @@ my %CONFIG = (
     df_ftphost => 'ftp.example.com',
     df_ftpport => 21,
     df_ftpsdir => '/',
-    df_ftpcdir => '/',
     df_ftype   => undef,
 
     ftp        => {
-        allowed  => [qw(ftphost ftpport ftpusr ftppwd ftpsdir ftpcdir ftype)],
+        allowed  => [qw(ftphost ftpport ftpusr ftppwd ftpsdir ftype)],
         required => [qw()],
         class    => 'Test::Smoke::Syncer::FTP',
     },
