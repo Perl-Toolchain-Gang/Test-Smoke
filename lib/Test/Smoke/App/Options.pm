@@ -49,6 +49,7 @@ sub synctree_config { # synctree.pl
             snapshot  => [
                 snapurl(),
                 snapfile(),
+                snaptar(),
             ],
         },
     );
@@ -574,6 +575,18 @@ sub snapfile {
         default    => 'perl-blead.tar.gz',
         helptext   => "The filename of the delivery",
         configtext => "What is the filename of the delivery?",
+        configalt  => sub { [] },
+        configord  => 1,
+    );
+}
+
+sub snaptar {
+    return $opt->new(
+        name       => 'snaptar',
+        option     => '=s',
+        default    => '',
+        helptext   => "The tar/zip command to unarchive",
+        configtext => "What is the tar/zip command to use to unarchive the delivery?",
         configalt  => sub { [] },
         configord  => 1,
     );

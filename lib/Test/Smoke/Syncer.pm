@@ -80,9 +80,10 @@ my %CONFIG = (
 # these settings have to do with synctype==snapshot
     df_snapurl => 'example.com/uploads/',
     df_snapfile => 'perl-blead.tar.gz',
+    df_snaptar => '',
 
     snapshot   => {
-        allowed  => [qw(snapurl snapfile)],
+        allowed  => [qw(snapurl snapfile snaptar)],
         required => [qw()],
         class    => 'Test::Smoke::Syncer::Snapshot',
     },
