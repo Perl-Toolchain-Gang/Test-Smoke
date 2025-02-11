@@ -8,26 +8,43 @@ use Test::Smoke::Util::Execute;
 
 local $Test::Smoke::LogMixin::USE_TIMESTAMP = 0;
 {
+    my $cmd = 'C:\Program Files\Git\bin\git.exe';
+    my $prg = Test::Smoke::Util::Execute->new(command => qq/"$cmd"/);
+    isa_ok($prg, 'Test::Smoke::Util::Execute');
+    is($prg->full_command(), qq/"$cmd"/, "full_command()");
+    is($prg->full_command('-q'), qq/"$cmd" -q/, "full_command(-q)");
+    is($prg->full_command('-q', 'blah blah'), qq/"$cmd" -q "blah blah"/, "full_command");
+
+    my $prg2 = Test::Smoke::Util::Execute->new(command => qq/$cmd/);
+    isa_ok($prg2, 'Test::Smoke::Util::Execute');
+    is($prg2->full_command(), qq/"$cmd"/, "full_command() no extra quotes");
+    is(
+        $prg2->full_command(commit => blah => -m => "'Inner apostrophe gone'"),
+        qq{"$cmd" commit blah -m "Inner apostrophe gone"},
+        "full_command() changes ' into \" around arguments"
+    );
+}
+{
     my @numbers = map "$_\n", 1..3;
     my $lines = join("", @numbers);
 
     my $prog = "print qq/$lines/";
     my $ex = Test::Smoke::Util::Execute->new(
-        command => "$^X -e"
+        command => "$^X"
     );
     isa_ok($ex, 'Test::Smoke::Util::Execute');
     is($ex->verbose, 0, "  Default verbose 0");
 
-    my @output = $ex->run($prog);
+    my @output = $ex->run('-e', $prog);
     is_deeply(\@output, \@numbers, "  Got the lines as array");
 
-    my $output = $ex->run($prog);
+    my $output = $ex->run('-e', $prog);
     is($output, $lines, "  Got the lines as scalar");
 }
 {
     my $hw = "Hello, World!";
     my $prog = "print qq/$hw/; exit 42";
-    my $command = qq/$^X -e/;
+    my $command = qq/$^X/;
     my $ex = Test::Smoke::Util::Execute->new(
         verbose => 1,
         command => $command,
@@ -40,13 +57,13 @@ local $Test::Smoke::LogMixin::USE_TIMESTAMP = 0;
     {
         local *STDOUT;
         open STDOUT, '>', \$stdout;
-        $output = $ex->run($prog);
+        $output = $ex->run('-e', $prog);
     }
     is_deeply($output, $hw, "  Got the output");
     is(
         $stdout,
-        "In pwd(@{[cwd()]}) running:\nqx[$command \"$prog\"]\n",
-        "  Caught the verbose [$command \"$prog\"]"
+        "In pwd(@{[cwd()]}) running:\nqx[$command -e \"$prog\"]\n",
+        "  Caught the verbose [$command -e \"$prog\"]"
     );
     is($ex->exitcode, 42, "  Caught the exitcode");
 }

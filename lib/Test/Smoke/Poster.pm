@@ -8,7 +8,6 @@ our $VERSION = '0.001';
 use Cwd qw/:DEFAULT abs_path/;
 use File::Spec::Functions qw/:DEFAULT rel2abs/;
 use Test::Smoke::Poster::Curl;
-use Test::Smoke::Poster::HTTP_Lite;
 use Test::Smoke::Poster::HTTP_Tiny;
 use Test::Smoke::Poster::LWP_UserAgent;
 
@@ -36,40 +35,37 @@ my %CONFIG = (
     df_poster  => 'HTTP::Tiny',
     df_ddir    => undef,
     df_jsnfile => 'mktest.jsn',
+    df_qfile   => undef,
     df_v       => 0,
 
-    df_smokedb_url => 'http://perl5.test-smoke.org/report',
+    df_smokedb_url => 'https://perl5.test-smoke.org/api/report',
 
     df_ua_timeout => undef,
+
+    df_curlargs => [ ],
 
     'LWP::UserAgent' => {
         allowed  => [qw/ua_timeout/],
         required => [],
         class    => 'Test::Smoke::Poster::LWP_UserAgent',
     },
-    'HTTP::Lite' => {
-        allowed => [],
-        required => [],
-        class => 'Test::Smoke::Poster::HTTP_Lite',
-    },
     'HTTP::Tiny' => {
-        allowed => [],
+        allowed => [qw/ua_timeout/],
         required => [],
         class => 'Test::Smoke::Poster::HTTP_Tiny',
     },
     'curl' => {
-        allowed => [qw/curlbin/],
+        allowed => [qw/curlbin curlargs ua_timeout/],
         required => [qw/curlbin/],
         class => 'Test::Smoke::Poster::Curl',
     },
 
     valid_type => {
         'LWP::UserAgent' => 1,
-        'HTTP::Lite'     => 1,
         'HTTP::Tiny'     => 1,
     },
 
-    general_options => [qw/ddir jsnfile v smokedb_url poster/],
+    general_options => [qw/ddir jsnfile qfile v smokedb_url poster/],
 );
 
 =head2 Test::Smoke::Poster->new($poster_type, %arguments)

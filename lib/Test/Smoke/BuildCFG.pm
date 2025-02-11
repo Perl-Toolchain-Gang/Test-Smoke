@@ -1,10 +1,10 @@
 package Test::Smoke::BuildCFG;
 use strict;
 
-use vars qw( $VERSION );
-$VERSION = '0.009';
+our $VERSION = '0.011';
 
 use Cwd;
+use File::Basename qw( dirname );
 use File::Spec;
 require File::Path;
 use Test::Smoke::LogMixin;
@@ -391,6 +391,30 @@ sub as_string {
     return join "=\n", map join( "\n", @$_, "" ) => @sections;
 }
 
+=head2 source
+
+returns the text-source of this instance.
+
+=cut
+
+sub source {
+    my $self = shift;
+
+    return $self->{_buildcfg};
+}
+
+=head2 sections
+
+returns an ARRAYREF of the sections in this instance.
+
+=cut
+
+sub sections {
+    my $self = shift;
+
+    return $self->{_sections};
+}
+
 =head2 __get_smoked_configs( $logfile )
 
 Parse the logfile and return a hash(ref) of already processed
@@ -427,22 +451,55 @@ configuration.
 sub default_buildcfg() {
 
     return <<__EOCONFIG__;
-
-= Build all configurations with and without ithreads
+# Test::Smoke::BuildCFG->default_buildcfg
+# Check the documentation for more information
+== Build all configurations with and without ithreads
 
 -Duseithreads
-= Build perl with these options
--Uuseperlio
+== Build with and without 64bitall
 
--Duse64bitint
--Duselongdouble
--Dusemorebits
-= All configurations with and without -DDEBUGGING
+-Duse64bitall
+== All configurations with and without -DDEBUGGING
 /-DDEBUGGING/
 
 -DDEBUGGING
 __EOCONFIG__
 }
+
+=head2 Test::Smoke::BuildCFG->os_default_buildcfg($os)
+
+Check for C<MSWin32> or C<VMS> and return one of the three prepared configs.
+
+=cut
+
+sub os_default_buildcfg {
+    my $self = shift;
+    my ($os) = @_;
+
+    (my $inc_name = __PACKAGE__ . ".pm") =~ s{::}{/}g;
+    my $base_dir = dirname($INC{$inc_name});
+    my $bcfg_file = 'perlcurrent.cfg';
+    GIVEN: {
+        local $_ = $os;
+
+        /^MSWin32$/ && do { $bcfg_file = 'w32current.cfg'; last GIVEN; };
+        /^VMS$/     && do { $bcfg_file = 'vmsperl.cfg'; last GIVEN; };
+    }
+
+    my $fullname = File::Spec->catfile($base_dir, $bcfg_file);
+    my $content;
+    if (open(my $fh, '<', $fullname)) {
+        $content = do { local $/; <$fh> };
+        close($fh);
+    }
+    else {
+        warn("Cannot open($fullname): $!");
+        $content = $self->default_buildcfg();
+    }
+
+    return $content;
+}
+
 
 =head2 new_configuration( $config )
 

@@ -22,3 +22,8 @@ MYMETA\..+
 cover_db/
 sandbox/
 \.bak$
+bin/configsmoke.pl
+\.github
+Makefile.PL.bak
+Test-Smoke-
+smokecurrent

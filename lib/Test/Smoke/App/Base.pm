@@ -1,7 +1,7 @@
 package Test::Smoke::App::Base;
 use warnings;
 use strict;
-use Carp;
+use Carp qw/ confess /;
 
 our $VERSION = '0.002';
 
@@ -12,6 +12,7 @@ use Getopt::Long qw/:config pass_through/;
 use Test::Smoke::App::AppOption;
 use Test::Smoke::App::AppOptionCollection;
 use Test::Smoke::LogMixin;
+use Test::Smoke::Util::Serialise qw/serialise/;
 
 =head1 NAME
 
@@ -116,6 +117,7 @@ sub configfile_option {
     return Test::Smoke::App::AppOption->new(
         name     => 'configfile',
         option   => 'config|c=s',
+        default  => 'smokecurrent',
         helptext => "Set the name/prefix of the configfile\n",
     );
 }
@@ -200,7 +202,7 @@ sub process_options {
 
 Return the value of an option.
 
-=head3 Argumens
+=head3 Arguments
 
 Positional.
 
@@ -245,9 +247,9 @@ sub option {
             return $opts->{$option} if $is_special;
         }
 
-        croak("Option '$option' is not valid.");
+        confess("Option '$option' is not valid.");
     }
-    croak("Invalid option '$option'");
+    confess("Invalid option '$option'");
 }
 
 sub _find_option {
@@ -351,8 +353,12 @@ sub _get_options {
     my $self = shift;
 
     %{$self->{_cli_options}} = %{$self->opt_collection->options_for_cli};
-    @{$self->{_ARGV}} = @ARGV;
-    GetOptions(
+
+    @{$self->{_ARGV}} = @{$self->{_ARGV_EXTRA}} = @ARGV;
+
+    my $parser = Getopt::Long::Parser->new(config => [qw/no_ignore_case passthrough/]);
+    $parser->getoptionsfromarray(
+        $self->{_ARGV_EXTRA},
         $self->cli_options,
         @{ $self->opt_collection->options_list },
     );
@@ -381,7 +387,10 @@ sub _post_process_options {
         $value = '<undef>' if !defined $value;
         push(
             @errors,
-            sprintf("Invalid value '%s' for option '%s'", $value, $opt)
+            sprintf(
+                "Invalid value '%s' for option '%s'",
+                $self->_show_option_value($opt), $opt
+            )
         ) if !$oo->allowed($self->final_options->{$opt});
     }
     if (@errors) {
@@ -402,15 +411,23 @@ sub _post_process_options {
         for my $opt (sort keys %options) {
             printf "  %-20s| %s\n",
                 $opt,
-                $self->option($opt) || '?';
+                $self->_show_option_value($opt) || '?';
         }
         exit(0);
     }
 }
 
+sub _show_option_value {
+    my $self =  shift;
+    my ($option_name) = @_;
+
+    return serialise( $self->option($option_name) );
+}
+
 sub _obtain_config_file {
     my $self = shift;
     $self->{_from_configfile} = {};
+    $self->{_configfile_error} = undef;
 
     my $cf_name = $self->cli_options->{'configfile'};
     return if !$cf_name;

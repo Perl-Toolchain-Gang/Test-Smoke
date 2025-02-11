@@ -2,7 +2,7 @@ package Test::Smoke::App::Options;
 use warnings;
 use strict;
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 use Test::Smoke::App::AppOption;
 
@@ -42,6 +42,14 @@ sub synctree_config { # synctree.pl
             fsync => [
                 fdir(),
             ],
+            ftp  => [
+                ftphost(),
+                ftpport(),
+            ],
+            snapshot  => [
+                snapurl(),
+                snaptar(),
+            ],
         },
     );
 }
@@ -62,8 +70,12 @@ sub mailer_config { # mailing reports
             report(0),
         ],
         special_options => {
-            mail => [mailbin()],
-            mailx => [mailxbin()],
+            mail => [ mailbin() ],
+            mailx => [
+                mailxbin(),
+                swcc(),
+                swbcc(),
+            ],
             sendemail => [
                 sendemailbin(),
                 from(),
@@ -101,16 +113,20 @@ sub poster_config { # posting to CoreSmokeDB
             ddir(),
             smokedb_url(),
             jsnfile(),
+            qfile(),
             report(0),
         ],
         special_options => {
             'LWP::UserAgent' => [
                 ua_timeout(),
             ],
-            'HTTP::Lite' => [],
-            'HTTP::Tiny' => [],
+            'HTTP::Tiny' => [
+                ua_timeout(),
+            ],
             'curl' => [
                 curlbin(),
+                curlargs(),
+                ua_timeout(),
             ],
         },
     );
@@ -128,6 +144,7 @@ sub reporter_config { # needed for sending out reports
             showcfg(),
             locale(),
             defaultenv(),
+            perlio_only(),
             is56x(),
             skip_tests(),
             harnessonly(),
@@ -140,6 +157,24 @@ sub reporter_config { # needed for sending out reports
             un_file(),
             un_position(),
         ],
+    );
+}
+
+sub reposter_config {
+    my %pc = poster_config();
+    my $pc_so = $pc{special_options};
+    return (
+        main_options => [
+            poster(),
+        ],
+        general_options => [
+            adir(),
+            commit_sha(),
+            jsonreport(),
+            max_reports(),
+            smokedb_url(),
+        ],
+        special_options => $pc_so,
     );
 }
 
@@ -179,6 +214,7 @@ sub runsmoke_config { # runsmoke.pl
             jsnfile(),
             cfg(),
             defaultenv(),
+            perlio_only(),
             force_c_locale(),
             harness3opts(),
             harnessonly(),
@@ -192,8 +228,10 @@ sub runsmoke_config { # runsmoke.pl
             opt_continue(),
             skip_tests(),
             testmake(),
+            w32args(),
             w32cc(),
             w32make(),
+            pass_option(),
         ],
     );
 }
@@ -258,9 +296,69 @@ sub smokeperl_config {
     );
 }
 
+sub w32configure_config {
+    return (
+        general_options => [
+            ddir(),
+            w32cc(),
+            w32make(),
+            w32args(),
+        ],
+    );
+}
+
+sub configsmoke_config {
+    return (
+        general_options => [
+            minus_des()
+        ]
+    );
+}
+
+sub smokestatus_config {
+    return (
+        general_options => [
+            ddir(),
+            outfile(),
+            cfg(),
+        ],
+    );
+}
+
+sub handlequeue_config {
+    my %pc = poster_config();
+    my $pc_so = $pc{special_options};
+    return (
+        main_options => [ poster() ],
+        general_options => [
+            adir(),
+            smokedb_url(),
+            qfile(),
+        ],
+        special_options => $pc_so,
+    );
+}
+
 ###########################################################
 #####              Individual options                 #####
 ###########################################################
+
+sub adir {
+    return $opt->new(
+        name => 'adir',
+        option => '=s',
+        default => '',
+        helptext => "Directory to archive the smoker files in.",
+        configtext => "Which directory should be used for the archives?
+\t(Make empty for no archiving)",
+        configtype => 'prompt_dir',
+        configdft => sub {
+            my $app = shift;
+            require File::Spec;
+            File::Spec->catdir('logs', $app->prefix);
+        },
+    );
+}
 
 sub archive {
     return $opt->new(
@@ -271,29 +369,29 @@ sub archive {
     );
 }
 
-sub adir {
-    return $opt->new(
-        name => 'adir',
-        option => '=s',
-        helptext => "Directory to archive the smoker files in.",
-    );
-}
-
 sub bcc {
     return $opt->new(
-        name => 'bcc',
-        option => '=s',
-        default => '',
-        helptext => 'Where to send a bcc of the reports.',
+        name       => 'bcc',
+        option     => '=s',
+        default    => '',
+        helptext   => 'Where to send a bcc of the reports.',
+        allow      => [ undef, '', qr/@/ ],
+        configtype => 'prompt',
+        configtext => 'This is the email address used to send BlindCarbonCopy:',
+        configdft  => sub {''},
     );
 }
 
 sub cc {
     return $opt->new(
-        name => 'cc',
-        option => '=s',
-        default => '',
-        helptext => 'Where to send a cc of the reports.',
+        name       => 'cc',
+        option     => '=s',
+        default    => '',
+        helptext   => 'Where to send a cc of the reports.',
+        allow      => [ undef, '', qr/@/ ],
+        configtype => 'prompt',
+        configtext => 'This is the email address used to send CarbonCopy:',
+        configdft  => sub {''},
     );
 }
 
@@ -316,36 +414,81 @@ sub cdir { # cdir => ddir
 
 sub cfg {
     return $opt->new(
-        name => 'cfg',
-        option => '=s',
-        default => undef,
-        helptext => "The name of the BuildCFG file.",
+        name       => 'cfg',
+        option     => '=s',
+        default    => undef,
+        helptext   => "The name of the BuildCFG file.",
+        configtext => "Which build configureations file would you like to use?",
+        configtype => 'prompt_file',
+        configfnex => 1,
+        configdft  => sub {
+            my $self = shift;
+            use File::Spec;
+            File::Spec->rel2abs($self->prefix . ".buildcfg");
+        },
+    );
+}
+
+sub commit_sha {
+    return $opt->new(
+        name => 'commit_sha',
+        option => 'sha=s@',
+        allow => sub {
+            my $values = shift;
+            my $ok = 1;
+            $ok &&= m{^ [0-9a-f]+ $}x for @$values;
+            return $ok;
+        },
+        default => [ ],
+        helptext => "A (partial) commit SHA (repeatable!)",
+    );
+}
+
+sub curlargs {
+    return $opt->new(
+        name     => 'curlargs',
+        option   => '=s@',
+        default  => [ ],
+        helptext => "Extra switches to pass to curl (repeatable!)",
     );
 }
 
 sub curlbin {
     return $opt->new(
-        name => 'curlbin',
-        option => '=s',
-        default => 'curl',
-        helptext => "The fqp for the curl program.",
+        name       => 'curlbin',
+        option     => '=s',
+        default    => 'curl',
+        helptext   => "The fqp for the curl program.",
+        configtext => "Which 'curl' binary do you want to use?",
+        configdft  => sub { (_helper(whereis => ['curl'])->())->[0] },
+        configord  => 3,
     );
 }
 
 sub ddir {
     return $opt->new(
-        name => 'ddir',
-        option => 'd=s',
-        helptext => 'Directory where perl is smoked.',
+        name       => 'ddir',
+        option     => 'd=s',
+        helptext   => 'Directory where perl is smoked.',
+        configtext => "Where would you like the new source-tree?",
+        configtype => 'prompt_dir',
+        configdft  => sub {
+            use File::Spec;
+            File::Spec->catdir(File::Spec->rel2abs(File::Spec->updir), 'perl-current');
+        },
     );
 }
 
 sub defaultenv {
     return $opt->new(
-        name => 'defaultenv',
-        option => '!',
-        default => 0,
-        helptext => "Do not set the test suite environment to locale.",
+        name       => 'defaultenv',
+        option     => '!',
+        default    => 0,
+        helptext   => "Do not set the test suite environment to locale.",
+        configtext => "Run the test suite without \$ENV{PERLIO}?",
+        configtype => 'prompt_yn',
+        configalt  => sub { [qw/ N y /] },
+        configdft  => sub {'n'},
     );
 }
 
@@ -359,10 +502,14 @@ sub fdir { # mdir => fdir => ddir
 
 sub from {
     return $opt->new(
-        name => 'from',
-        option => '=s',
-        default => '',
-        helptext => 'Where to send the reports from.',
+        name       => 'from',
+        option     => '=s',
+        default    => '',
+        allow      => [ '', qr/@/ ],
+        helptext   => 'Where to send the reports from.',
+        configtype => 'prompt',
+        configtext => 'This is the email address used to send FROM:',
+        configdft  => sub {''},
     );
 }
 
@@ -374,54 +521,138 @@ sub fsync { # How to sync the mdir for Forest.
 
 sub force_c_locale {
     return $opt->new(
-        name => 'force_c_locale',
-        default => 0,
-        helptext => "Run test suite under the C locale only.",
+        name       => 'force_c_locale',
+        default    => 0,
+        helptext   => "Run test suite under the C locale only.",
+        configtext => "Should \$ENV{LC_ALL} be forced to 'C'?",
+        configtype => 'prompt_yn',
+        configalt  => sub { [qw/ N y /] },
+        configdft  => sub {'n'},
+    );
+}
+
+sub ftphost {
+    return $opt->new(
+        name       => 'ftphost',
+        option     => '=s',
+        default    => 'ftp.example.com',
+        helptext   => "The FTP server",
+        configtext => "What is the URL of your FTP server?",
+        configalt  => sub { [] },
+        configord  => 1,
+    );
+}
+
+sub ftpport {
+    return $opt->new(
+        name       => 'ftpport',
+        option     => '=i',
+        default    => 21,
+        helptext   => "The FTP port",
+        configtext => "What is the port of your FTP server?",
+        configalt  => sub { [] },
+        configord  => 2,
+    );
+}
+
+sub snapurl {
+    my $blead = "https://github.com/Perl/perl5/archive/refs/heads/blead.tar.gz";
+    #my $tag = "https://github.com/Perl/perl5/archive/refs/tags/v5.41.6.tar.gz";
+    #my $pr_domestic = "https://github.com/Perl/perl5/archive/refs/pull/22991/head.tar.gz";
+    #my $pr_from_fork = "https://github.com/Perl/perl5/archive/refs/pull/22981/head.tar.gz";
+    return $opt->new(
+        name       => 'snapurl',
+        option     => '=s',
+        default    => "$blead",
+        helptext   => "The URL with path",
+        configtext => "What is the URL of the delivery?",
+        configalt  => sub { [] },
+        configord  => 1,
+    );
+}
+
+sub snaptar {
+    return $opt->new(
+        name       => 'snaptar',
+        option     => '=s',
+        default    => '',
+        helptext   => "The tar/zip command to unarchive",
+        configtext => "What is the tar/zip command to use to unarchive the delivery?",
+        configalt  => sub { [] },
+        configord  => 1,
     );
 }
 
 sub gitbin {
     return $opt->new(
-        name => 'gitbin',
-        option => '=s',
-        default => 'git',
-        helptext => "The name of the 'git' program.",
-    );
-}
-
-sub gitbranchfile {
-    return $opt->new(
-        name => 'gitbranchfile',
-        option => '=s',
-        default => '',
-        helptext => "The name of the file where the gitbranch is stored.",
-    );
-}
-
-sub gitdfbranch {
-    return $opt->new(
-        name => 'gitdfbranch',
-        option => '=s',
-        default => 'blead',
-        helptext => "The name of the gitbranch you smoke.",
-    );
-}
-
-sub gitdir {
-    return $opt->new(
-        name => 'gitdir',
-        option => '=s',
-        default => 'perl-git',
-        helptext => "The local directory of the git repository.",
+        name       => 'gitbin',
+        option     => '=s',
+        default    => 'git',
+        helptext   => "The name of the 'git' program.",
+        configtext => "Which 'git' binary do you want to use?",
+        configtype => 'prompt_file',
+        configdft  => sub { (_helper(whereis => ['git'])->())->[0] },
+        configord  => 1,
     );
 }
 
 sub gitorigin {
     return $opt->new(
-        name => 'gitorigin',
-        option => '=s',
-        default => 'git://perl5.git.perl.org/perl.git',
-        helptext => "The remote location of the git repository.",
+        name       => 'gitorigin',
+        option     => '=s',
+        default    => 'https://github.com/Perl/perl5.git',
+        helptext   => "The remote location of the git repository.",
+        configtext => "Where is your main Git repository?",
+        configalt  => sub { [] },
+        configord  => 2,
+    );
+}
+
+sub gitdir {
+    return $opt->new(
+        name       => 'gitdir',
+        option     => '=s',
+        default    => 'perl-from-github',
+        helptext   => "The local directory of the git repository.",
+        configtext => "Where do I put the main Git repository?",
+        configtype => 'prompt_dir',
+        configalt  => sub { [] },
+        configdft  => sub {
+            use File::Spec;
+            File::Spec->catfile(
+                File::Spec->rel2abs(File::Spec->updir),
+                'perl-from-github'
+            );
+        },
+        configord  => 3,
+    );
+}
+
+sub gitdfbranch {
+    return $opt->new(
+        name       => 'gitdfbranch',
+        option     => '=s',
+        default    => 'blead',
+        helptext   => "The name of the gitbranch you smoke.",
+        configtext => "Which branch should be smoked by default?",
+        configtype => 'prompt',
+        configalt  => sub { [] },
+        configord  => 4,
+    );
+}
+
+sub gitbranchfile {
+    return $opt->new(
+        name       => 'gitbranchfile',
+        option     => '=s',
+        default    => '',
+        helptext   => "The name of the file where the gitbranch is stored.",
+        configtext => "File name to put branch name for smoking in?",
+        configtype => 'prompt_file',
+        configalt  => sub { [] },
+        configdft  => sub { my $self = shift; return $self->prefix . ".gitbranch" },
+        configfnex => 1,
+        configord  => 5,
     );
 }
 
@@ -436,18 +667,26 @@ sub harness_destruct {
 
 sub harness3opts {
     return $opt->new(
-        name => 'harness3opts',
-        option => '=s',
-        helptext => "Extra options to pass to harness v3+.",
+        name       => 'harness3opts',
+        option     => '=s',
+        default    => '',
+        helptext   => "Extra options to pass to harness v3+.",
+        configtext => "Extra options for Test::Harness 3
+\tFor parallel testing use; 'j5'",
+        configdft  => sub {''},
     );
 }
 
 sub harnessonly {
     return $opt->new(
-        name => 'harnessonly',
-        option => '!',
-        default => 0,
-        helptext => "Run test suite as 'make test_harness' (not make test).",
+        name       => 'harnessonly',
+        option     => '!',
+        default    => 0,
+        helptext   => "Run test suite as 'make test_harness' (not make test).",
+        configtext => "Use harness only (skip TEST)?",
+        configtype => 'prompt_yn',
+        configalt  => sub { [qw/ y N /] },
+        configdft  => sub {'n'},
     );
 }
 
@@ -469,11 +708,15 @@ sub hdir { # hdir => ddir
 }
 
 sub hostname {
+    use System::Info;
+    my $hostname = System::Info::si_uname('n');
     return $opt->new(
-        name => 'hostname',
-        option => '=s',
-        deafult => undef,
-        helptext => 'Use the hostname option to override System::Info->hostname',
+        name       => 'hostname',
+        option     => '=s',
+        deafult    => undef,
+        helptext   => 'Use the hostname option to override System::Info->hostname',
+        configtext => "Use this option to override the default hostname.
+\tLeave empty for default ($hostname)",
     );
 }
 
@@ -510,13 +753,30 @@ sub jsnfile {
     );
 }
 
+sub jsonreport {
+    return $opt->new(
+        name     => 'jsonreport',
+        option   => '=s',
+        default  => undef,
+        helptext => "Name of json report file to re-post to the server"
+                  . " (Takes precedence over '--adir' and '--sha')",
+    );
+}
+
 sub killtime {
     return $opt->new(
         name => 'killtime',
         option => '=s',
-        default => undef,
+        default => '',
         allow => [undef, '', qr/^\+?[0-9]{1,2}:[0-9]{2}$/],
         helptext => "The absolute or relative time the smoke may run.",
+        configtext => <<"EOT",
+Should this smoke be aborted on/after a specific time?
+\tuse HH:MM to specify a point in time (24 hour notation)
+\tuse +HH:MM to specify a duration
+\tleave empty to finish the smoke without aborting
+EOT
+        configdft => sub { "" },
     );
 }
 
@@ -524,24 +784,34 @@ sub lfile {
     return $opt->new(
         name => 'lfile',
         option => '=s',
-        default => undef,
+        default => '',
         helptext => 'Name of the file to store the smoke log in.',
     );
 }
 
 sub locale {
     return $opt->new(
-        name => 'locale',
-        option => '=s',
-        helptext => "Choose a locale to run the test suite under.",
+        name       => 'locale',
+        option     => '=s',
+        default    => '',
+        allow      => [undef, '', qr{utf-?8$}i],
+        helptext   => "Choose a locale to run the test suite under.",
+        configtext => "What locale should be used for extra testing?
+\t(Leave empty for none)",
     );
 }
 
 sub mail {
     return $opt->new(
-        name => 'mail',
-        option => '!',
-        helptext => "Send report via mail.",
+        name       => 'mail',
+        option     => '!',
+        allow      => [ 0, 1 ],
+        default    => 0,
+        helptext   => "Send report via mail.",
+        configtext => 'The existence of the mailing-list is not guarenteed',
+        configtype => 'prompt_yn',
+        configalt  => sub { [qw/ y N /] },
+        configdft  => sub {'n'},
     );
 }
 
@@ -552,32 +822,52 @@ sub mail_type {
         allow  => [qw/sendmail mail mailx sendemail Mail::Sendmail MIME::Lite/],
         default  => 'Mail::Sendmail',
         helptext => "The type of mailsystem to use.",
+        configalt  => _helper('get_avail_mailers'),
+        configdft  => sub { (_helper('get_avail_mailers')->())[0] },
     );
 }
 
 sub mailbin {
     return $opt->new(
-        name => 'mailbin',
-        option => '=s',
-        default => 'mail',
-        helptext => "The name of the 'mail' program.",
+        name       => 'mailbin',
+        option     => '=s',
+        default    => 'mail',
+        helptext   => "The name of the 'mail' program.",
+        configtext => 'The fully qualified name of the executable.',
+        configdft  => sub { (_helper(whereis => ['mail'])->())->[0] },
     );
 }
 
 sub mailxbin {
     return $opt->new(
-        name => 'mailxbin',
-        option => '=s',
-        default => 'mailx',
-        helptext => "The name of the 'mailx' program.",
+        name       => 'mailxbin',
+        option     => '=s',
+        default    => 'mailx',
+        helptext   => "The name of the 'mailx' program.",
+        configtext => 'The fully qualified name of the executable.',
+        configdft  => sub { (_helper(whereis => ['mailx'])->())->[0] },
     );
 }
 
 sub makeopt {
+    require Config;
     return $opt->new(
-        name => 'makeopt',
-        option => '=s',
-        helptext => "Extra option to pass to make.",
+        name       => 'makeopt',
+        option     => '=s',
+        default    => '',
+        helptext   => "Extra option to pass to make.",
+        configtext => "Specify extra arguments for '$Config::Config{make}'\n"
+                    . "\t(for the 'build' and 'test_prep' steps)",
+        configdft  => sub { '' },
+    );
+}
+
+sub max_reports {
+    return $opt->new(
+        name => 'max_reports',
+        option => 'max-reports|max=i',
+        default => 10,
+        helptext => "Maximum number of reports to pick from",
     );
 }
 
@@ -589,37 +879,53 @@ sub mdir { # mdir => fdir => ddir
     );
 }
 
+sub minus_des {
+    return $opt->new(
+        name     => 'des',
+        option   => 'usedft',
+        helptext => "Use all the default values.",
+    );
+}
+
 sub mspass {
     return $opt->new(
-        name => 'mspass',
-        option => '=s',
-        helptext => 'Password for <msuser> for SMTP server.',
+        name       => 'mspass',
+        option     => '=s',
+        helptext   => 'Password for <msuser> for SMTP server.',
+        configtext => "Type the password: 'noecho' but plain-text in config file!",
+        configtype => 'prompt_noecho',
     );
 }
 
 sub msport {
     return $opt->new(
-        name => 'msport',
-        option => '=i',
-        default => 25,
-        helptext => 'Which port for SMTP server to send reports.',
+        name       => 'msport',
+        option     => '=i',
+        default    => 25,
+        helptext   => 'Which port for SMTP server to send reports.',
+        configtext => "Some SMTP servers use port 465 or 587",
     );
 }
 
 sub msuser {
     return $opt->new(
-        name => 'msuser',
-        option => '=s',
-        helptext => 'Username for SMTP server.',
+        name       => 'msuser',
+        option     => '=s',
+        default    => undef,
+        allow      => [ undef, '', qr/\w+/ ],
+        helptext   => 'Username for SMTP server.',
+        configtext => "This is the username for logging into the SMTP server\n"
+                    . "    leave empty if you don't have to login",
     );
 }
 
 sub mserver {
     return $opt->new(
-        name => 'mserver',
-        option => '=s',
-        default => 'localhost',
-        helptext => 'Which SMTP server to send reports.',
+        name       => 'mserver',
+        option     => '=s',
+        default    => 'localhost',
+        helptext   => 'Which SMTP server to send reports.',
+        configtext => "SMTP server to use for sending reports",
     );
 }
 
@@ -641,6 +947,23 @@ sub outfile {
     );
 }
 
+sub pass_option {
+    return $opt->new(
+        name => 'pass_option',
+        option => 'pass-option|p=s@',
+        default => [],
+        allow => sub {
+            my ($list) = @_;
+            return unless ref($list) eq 'ARRAY';
+            for my $to_pass (@$list) {
+                return unless $to_pass =~ m{^ - [DUA] .+ $}x;
+            }
+            return 1;
+        },
+        helptext => 'Pass these options to Configure.',
+    );
+}
+
 sub patchlevel {
     return $opt->new(
         name => 'patchlevel',
@@ -649,13 +972,74 @@ sub patchlevel {
     );
 }
 
+sub perl_version {
+    return $opt->new(
+        name   => 'perl_version',
+        option => '=s',
+        allow  => qr{^ (?:blead | 5 [.] (?: [2][68] | [3-9][02468] ) [.] x+ ) $}x,
+        dft    => 'blead',
+    );
+}
+
+sub perl5lib {
+    return $opt->new(
+        name       => 'perl5lib',
+        option     => '=s',
+        dft        => exists($ENV{PERL5LIB}) ? $ENV{PERL5LIB} : '',
+        helptext   => "What value should be used for PERL5LIB in the jcl wrapper?\n",
+        configtext => "\$PERL5LIB will be set to this value during the smoke\n"
+                    . "\t(Make empty, with single space, to not set it.)",
+    );
+}
+
+sub perl5opt {
+    return $opt->new(
+        name       => 'perl5opt',
+        option     => '=s',
+        dft        => exists($ENV{PERL5OPT}) ? $ENV{PERL5OPT} : '',
+        helptext   => "What value should be used for PERL5OPT in the jcl wrapper?\n",
+        configtext => "\$PERL5OPT will be set to this value during the smoke\n"
+                    . "\t(Make empty, with single space, to not set it.)",
+    );
+}
+
+sub perlio_only {
+    return $opt->new(
+        name       => 'perlio_only',
+        option     => '!',
+        default    => 0,
+        helptext   => "Do not set the test suite environment to stdio.",
+        configtext => "Run the test suite without \$ENV{PERLIO}=='stdio'?",
+        configtype => 'prompt_yn',
+        configalt  => sub { [qw/ N y /] },
+        configdft  => sub {'n'},
+    );
+}
+
 sub poster {
     return $opt->new(
-        name     => 'poster',
-        option   => '=s',
-        allow    => [qw/LWP::UserAgent HTTP::Lite HTTP::Tiny curl/],
-        default  => 'LWP::UserAgent',
-        helptext => "The type of HTTP post system to use.",
+        name       => 'poster',
+        option     => '=s',
+        allow      => [qw/HTTP::Tiny LWP::UserAgent curl/],
+        default    => 'HTTP::Tiny',
+        helptext   => "The type of HTTP post system to use.",
+        configtext => "Which HTTP client do you want to use?",
+        configalt  => _helper('get_avail_posters'),
+        configdft  => sub { (_helper('get_avail_posters')->())[0] },
+        configord  => 2,
+    );
+}
+
+sub qfile {
+    return $opt->new(
+        name       => 'qfile',
+        option     => '=s',
+        allow      => [undef, '', qr{^[\w./:\\-]+$}],
+        default    => undef,
+        helptext   => 'The qfile keeps the queue of reports to resend.',
+        configtext => "One can now queue reports if they couldn't be delevered.\n"
+                    . "\tLeave empty for no queue.",
+        configdft => sub {undef},
     );
 }
 
@@ -680,66 +1064,90 @@ sub rptfile {
 
 sub rsyncbin {
     return $opt->new(
-        name => 'rsync', #old name
-        option => '=s',
-        default => 'rsync', # you might want a path there
-        helptext => "The name of the 'rsync' programe.",
-    );
-}
-
-sub rsyncopts {
-    return $opt->new(
-        name => 'opts',
-        option => '=s',
-        default => '-az --delete',
-        helptext => "Options to use for the 'rsync' program",
+        name       => 'rsync',                                         #old name
+        option     => '=s',
+        default    => 'rsync',                                         # you might want a path there
+        helptext   => "The name of the 'rsync' programe.",
+        configtext => "Which 'rsync' binary do you want to use?",
+        configtype => 'prompt_file',
+        configdft  => sub { (_helper(whereis => ['rsync'])->())->[0] },
+        configord  => 1,
     );
 }
 
 sub rsyncsource {
     return $opt->new(
-        name => 'source',
-        option => '=s',
-        default => 'perl5.git.perl.org::perl-current',
-        helptext => "The remote location of the rsync archive.",
+        name       => 'source',
+        option     => '=s',
+        default    => 'rsync://dromedary.p5h.org:5872/perl-current/',
+        helptext   => "The remote location of the rsync archive.",
+        configtext => "Where would you like to rsync from?",
+        configtype => 'prompt',
+        configord  => 2,
+    );
+}
+
+sub rsyncopts {
+    return $opt->new(
+        name       => 'opts',
+        option     => '=s',
+        default    => '-az --delete',
+        helptext   => "Options to use for the 'rsync' program",
+        configtext => "Which arguments should be used for rsync?",
+        configtype => 'prompt',
+        configord  => 3,
     );
 }
 
 sub send_log {
+    my $allow = [qw/ never on_fail always /];
     return $opt->new(
-        name => 'send_log',
-        option => '=s',
-        default => 'on_fail',
-        allow => [qw/ never on_fail always /],
-        helptext => "Send logfile to the CoreSmokeDB server.",
+        name       => 'send_log',
+        option     => '=s',
+        default    => 'on_fail',
+        allow      => $allow,
+        helptext   => "Send logfile to the CoreSmokeDB server.",
+        configtext => "Do you want to send the logfile with the report?",
+        configalt  => sub {$allow},
+        configdft  => sub {'on_fail'},
+        configord  => 4,
     );
 }
 
 sub send_out {
+    my $allow = [qw/ never on_fail always /];
     return $opt->new(
-        name => 'send_out',
-        option => '=s',
-        default => 'never',
-        allow => [qw/ never on_fail always /],
-        helptext => "Send out-file to the CoreSmokeDB server.",
+        name       => 'send_out',
+        option     => '=s',
+        default    => 'never',
+        allow      => $allow,
+        helptext   => "Send out-file to the CoreSmokeDB server.",
+        configtext => "Do you want to send the outfile with the report?",
+        configalt  => sub {$allow},
+        configdft  => sub {'never'},
+        configord  => 5,
     );
 }
 
 sub sendemailbin {
     return $opt->new(
-        name => 'sendemailbin',
-        option => '=s',
-        default => 'sendemail',
-        helptext => "The name of the 'sendemail' program.",
+        name       => 'sendemailbin',
+        option     => '=s',
+        default    => 'sendemail',
+        helptext   => "The name of the 'sendemail' program.",
+        configtext => 'The fully qualified name of the executable.',
+        configdft  => sub { (_helper(whereis => ['sendemail'])->())->[0] },
     );
 }
 
 sub sendmailbin {
     return $opt->new(
-        name => 'sendmailbin',
-        option => '=s',
-        default => 'sendmail',
-        helptext => "The name of the 'sendmail' program.",
+        name       => 'sendmailbin',
+        option     => '=s',
+        default    => 'sendmail',
+        helptext   => "The name of the 'sendmail' program.",
+        configtext => 'The fully qualified name of the executable.',
+        configdft  => sub { (_helper(whereis => ['sendmail'])->())->[0] },
     );
 }
 
@@ -763,27 +1171,44 @@ sub showcfg {
 
 sub skip_tests {
     return $opt->new(
-        name => 'skip_tests',
-        option => '=s',
-        helptext => "Name of the file to store tests to skip.",
+        name       => 'skip_tests',
+        option     => '=s',
+        helptext   => "Name of the file to store tests to skip.",
+        configtext => "What file do you want to use to specify tests to skip.
+\t(Make empty for none)",
+        configtype => 'prompt_file',
+        configfnex => 1,
+        configdft  => sub {
+            my $app = shift;
+            $app->prefix . ".skiptests";
+        },
     );
 }
 
 sub smartsmoke {
     return $opt->new(
-        name => 'smartsmoke',
-        option => '!',
-        default => 1,
-        helptext => "Do not smoke when the source-tree did not change.",
+        name       => 'smartsmoke',
+        option     => '!',
+        allow      => [ 0, 1 ],
+        default    => 1,
+        helptext   => "Do not smoke when the source-tree did not change.",
+        configtext => "Skip smoke unless patchlevel changed?",
+        configtype => 'prompt_yn',
+        configalt  => sub { [qw/ Y n/] },
+        configdft  => sub {'y'},
     );
 }
 
 sub smokedb_url {
+    my $default = 'https://perl5.test-smoke.org/api/report';
     return $opt->new(
-        name => 'smokedb_url',
-        option => '=s',
-        default => 'https://perl5.test-smoke.org/report',
-        helptext => "The URL for sending reports to CoreSmokeDB.",
+        name       => 'smokedb_url',
+        option     => '=s',
+        default    => $default,
+        helptext   => "The URL for sending reports to CoreSmokeDB.",
+        configtext => "Where do I send the reports?",
+        configdft  => sub { $default },
+        configord  => 1,
     );
 }
 
@@ -798,11 +1223,14 @@ sub sync {
 
 sub sync_type {
     return $opt->new(
-        name     => 'sync_type',
-        option   => '=s',
-        allow    => [qw/git rsync copy/],
-        default  => 'git',
-        helptext => 'The source tree sync method.',
+        name       => 'sync_type',
+        option     => '=s',
+        allow      => [qw/git rsync copy ftp snapshot/],
+        default    => 'git',
+        helptext   => 'The source tree sync method.',
+        configtext => 'How would you like to sync the perl-source?',
+        configtype => 'prompt',
+        configalt  => _helper( get_avail_sync => [ ]),
     );
 }
 
@@ -825,46 +1253,72 @@ sub swcc {
 }
 
 sub testmake { # This was an Alan Burlison request.
+    require Config;
     return $opt->new(
-        name => 'testmake',
-        option => '=s',
-        helptext => "A different make program for 'make test'.",
+        name       => 'testmake',
+        option     => '=s',
+        default    => undef,
+        helptext   => "A different make program for 'make _test'.",
+        configtext => "Specify a different make binary for 'make _test'?",
+        configdft  => sub {
+            $Config::Config{make} ? $Config::Config{make} : 'make'
+        },
     );
 }
 
 sub to {
+    my $mailing_list = 'daily-build-reports@perl.org';
     return $opt->new(
-        name => 'to',
-        option => '=s',
-        default => 'daily-build-reports@perl.org',
-        helptext => 'Where to send the reports.',
+        name       => 'to',
+        option     => '=s',
+        default    => $mailing_list,
+        allow      => [qr/@/],
+        helptext   => 'Where to send the reports to.',
+        configtype => 'prompt',
+        configtext => 'This is the email address used to send TO:',
+        configdft  => sub {$mailing_list},
     );
 }
 
 sub ua_timeout {
     return $opt->new(
-        name => 'ua_timeout',
-        option => '=i',
-        default => 30,
-        helptext => "The timeout to set the UserAgent.",
+        name       => 'ua_timeout',
+        option     => '=i',
+        default    => 30,
+        allow      => qr/^[1-9][0-9]{0,5}$/,
+        helptext   => "The timeout to set the LWP::UserAgent.",
+        configtext => "What should the timeout for the useragent be?",
+        configdft  => sub {30},
+        configord  => 3,
     );
 }
 
 sub un_file {
     return $opt->new(
-        name => 'un_file',
-        option => '=s',
-        helptext => "Name of the file with the 'user_note' text.",
+        name       => 'un_file',
+        option     => '=s',
+        helptext   => "Name of the file with the 'user_note' text.",
+        configtext => "In which file will you store your personal notes?
+\t(Leave empty for none.)",
+        configtype => 'prompt_file',
+        configfnex => 1,
+        configdft  => sub {
+            my $app = shift;
+            return $app->prefix . '.usernote';
+        },
     );
 }
 
 sub un_position {
     return $opt->new(
-        name => 'un_position',
-        option => '=s',
-        allow => ['top', 'bottom'],
-        default => 'bottom',
-        helptext => "Position of the 'user_note' in the smoke report.",
+        name       => 'un_position',
+        option     => '=s',
+        allow      => ['top', 'bottom'],
+        default    => 'bottom',
+        helptext   => "Position of the 'user_note' in the smoke report.",
+        configtext => "Where do you want your personal notes in the report?",
+        configalt  => sub { [qw/top bottom/] },
+        configdft  => sub {'bottom'},
     );
 }
 
@@ -873,6 +1327,18 @@ sub user_note {
         name => 'user_note',
         option => '=s',
         helptext => "Extra text to insert into the smoke report.",
+    );
+}
+
+sub v {
+    return $opt->new(
+        name       => 'v',
+        option     => ':1',
+        default    => 1,
+        allow      => [0, 1, 2],
+        helptext   => "Log-level during smoke",
+        configtext => "How verbose do you want the output?",
+        configalt  => sub { [0, 1, 2] },
     );
 }
 
@@ -897,7 +1363,7 @@ sub w32args {
 sub w32cc {
     return $opt->new(
         name => 'w32cc',
-        opt => '=s',
+        option => '=s',
         helptext => "The compiler on MSWin32.",
     );
 }
@@ -905,10 +1371,29 @@ sub w32cc {
 sub w32make {
     return $opt->new(
         name => 'w32make',
-        opt => '=s',
-        default => 'dmake',
+        option => '=s',
+        default => 'gmake',
         helptext => "The make program on MSWin32.",
     );
+}
+
+sub _helper {
+    my ($helper, $args) = @_;
+
+    return sub {
+        require Test::Smoke::Util::FindHelpers;
+        my $run_helper = Test::Smoke::Util::FindHelpers->can($helper);
+        my @values;
+        if ($helper =~ m{(?:mailers)}) {
+            my %helpers = $run_helper->(@$args);
+            @values = sort keys %helpers;
+        }
+        else {
+            @values = $run_helper->( @$args );
+        }
+
+        return [ @values ];
+    }
 }
 
 1;

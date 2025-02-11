@@ -121,6 +121,43 @@ sub _relocate_tree {
     $self->{v} and print "OK\n";
 }
 
+=head2 $syncer->check_dot_git_patch( )
+
+[ Method | Public ]
+
+C<check_dot_git_patch()> checks if there is a '.git_patch' file in the source-tree.
+
+It returns the patchlevel found or C<undef>.
+
+=cut
+
+sub check_dot_git_patch {
+    my $self = shift;
+
+    my $dot_git_patch = File::Spec->catfile( $self->{ddir}, '.git_patch' );
+
+    local *DOTGITPATCH;
+    my $patch_level = '?????';
+    if ( open DOTGITPATCH, "< $dot_git_patch" ) {
+        chomp( $patch_level = <DOTGITPATCH> );
+        close DOTGITPATCH;
+
+	if ( $patch_level ) {
+
+	    return undef if ( $patch_level =~ /^\$Format/ ); # Not expanded
+
+            my @dot_git_patch = split '\|', $patch_level;
+
+            # As we do not use time information, we can just pick the first and
+            # the last two elements
+            my ($sha, $describe, $names) = @dot_git_patch[0, -2, -1];
+
+            return $sha;
+        }
+    }
+    return undef;
+}
+
 =head2 $syncer->check_dot_patch( )
 
 [ Method | Public ]
@@ -142,10 +179,21 @@ sub check_dot_patch {
     if ( open DOTPATCH, "< $dot_patch" ) {
         chomp( $patch_level = <DOTPATCH> );
         close DOTPATCH;
+        # From rsync:
+        # blead 2019-11-06.00:32:06 +0100 cc8ba724ccabff255f384ab68d6f6806ac2eae7c v5.31.5-174-gcc8ba72
+        # from make_dot_patch.pl:
+        # blead 2019-11-05.23:32:06 cc8ba724ccabff255f384ab68d6f6806ac2eae7c v5.31.5-174-gcc8ba724cc
         if ( $patch_level ) {
             my @dot_patch = split ' ', $patch_level;
-            $self->{patchlevel} = $dot_patch[2] || $dot_patch[0];
-            $self->{patchdescr} = $dot_patch[3] || $dot_patch[0];
+
+            # As we do not use time information, we can just pick the first and
+            # the last two elements
+            my ($branch, $sha, $describe) = @dot_patch[0, -2, -1];
+            # $sha      -> sysinfo.git_id
+            # $describe -> sysinfo.git_describe
+
+            $self->{patchlevel} = $sha      || $branch;
+            $self->{patchdescr} = $describe || $branch;
             return $self->{patchlevel};
         }
     }
@@ -198,7 +246,7 @@ sub version_from_patchlevel_h {
     my $self = shift;
 
     require Test::Smoke::Util;
-    return Test::Smoke::Util::version_from_patchelevel( $self->{ddir} );
+    return Test::Smoke::Util::version_from_patchlevel_h( $self->{ddir} );
 }
 
 =head2 is_git_dir()
@@ -240,10 +288,10 @@ sub make_dot_patch {
     my $self = shift;
 
     my $mk_dot_patch = Test::Smoke::Util::Execute->new(
-        command => "$^X Porting/make_dot_patch.pl > .patch",
+        command => "$^X",
         verbose => $self->verbose,
     );
-    my $perlout = $mk_dot_patch->run();
+    my $perlout = $mk_dot_patch->run("Porting/make_dot_patch.pl", ">", ".patch");
     $self->log_debug($perlout);
 }
 

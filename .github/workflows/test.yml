@@ -1,0 +1,29 @@
+name: Perl Test Suite
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Perl
+      uses: shogo82148/actions-setup-perl@v1
+      with:
+        perl-version: '5.38'
+
+    - name: Install dependencies
+      run: mv Makefile.PL Makefile.PL.bak && cpanm --quiet --installdeps .
+
+    - name: Run tests
+      run: prove -lr t/
+    
+    - name: Run author tests
+      run: mv Makefile.PL.bak Makefile.PL && prove -l xt/

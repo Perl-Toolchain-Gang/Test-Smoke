@@ -23,7 +23,8 @@ USE_PERLIO	= define
 USE_LARGE_FILES	= define
 
 # To be introduced: BUILD_STATIC as -Uuseshrplib
-#BUILD_STATIC   = define
+#BUILD_STATIC	= define
+#ALL_STATIC	= define
 
 # CCTYPE has no visible default in Makefile
 #CCTYPE		= MSVC20
@@ -43,8 +44,12 @@ USE_LARGE_FILES	= define
 #CCHOME		= f:\msvc20
 CCHOME		= $(MSVCDIR)
 
+# Additional compiler flags can be specified here.
+#
+#BUILDOPT	= $(BUILDOPTEXTRA)
+
 # A new thing to build a 32bit perl on 64bit windows
-#WIN64		*= undef
+#WIN64		= undef
 
 # EMAIL is used to set -Dcf_email=xxx
 #EMAIL		= 

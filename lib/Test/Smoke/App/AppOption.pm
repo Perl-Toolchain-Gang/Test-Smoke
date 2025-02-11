@@ -55,7 +55,7 @@ croak()s when:
 
 =item B<name not set>
 
-=item B<allow is not undef or an ArrayRef>
+=item B<allow is not undef or ref($allow) is Regexp, CODE or ARRAY>
 
 =back
 
@@ -66,11 +66,17 @@ sub new {
     my %args = @_;
 
     my $struct = {
-        _name     => undef,
-        _option   => "",
-        _allow    => undef,
-        _default  => undef,
-        _helptext => "",
+        _name       => undef,
+        _option     => "",
+        _allow      => undef,
+        _default    => undef,
+        _helptext   => "",
+        _configtext => "",
+        _configtype => "prompt",
+        _configalt  => sub { [] },
+        _configdft  => sub { },
+        _configfnex => 0,
+        _configord  => 0,
     };
     $struct->{_had_default} = exists $args{default};
     for my $known (keys %$struct) {

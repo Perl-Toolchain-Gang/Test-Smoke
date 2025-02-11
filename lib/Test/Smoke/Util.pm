@@ -45,7 +45,7 @@ C<Configure_win32()> alters the settings of the makefile for MSWin32.
 
 C<$command> is in the form of './Configure -des -Dusedevel ...'
 
-C<$win32_maker> should either be C<nmake> or C<dmake>, the default
+C<$win32_maker> should either be C<nmake> or C<gmake>, the default
 is C<nmake>.
 
 C<@args> is a list of C<< option=value >> pairs that will (eventually)
@@ -77,13 +77,37 @@ sets USE_MULTI = define (also sets USE_ITHREADS and USE_IMP_SYS)
 
 sets USE_IMP_SYS = define (also sets USE_ITHREADS and USE_MULTI)
 
+=item * B<-Uusethreads> or B<-Uuseithreads>
+
+unset C<USE_MULTI>, C<USE_IMP_SYS> and C<USE_ITHREADS>
+
 =item * B<-Dusemymalloc>
 
-set PERL_MALLOC = define
+set C<PERL_MALLOC := define>
 
 =item * B<-Duselargefiles>
 
-set USE_LARGE_FILES = define
+set C<USE_LARGE_FILES := define>
+
+=item * B<-Duse64bint>
+
+set C<USE_64_BIT_INT := define> (always for win64, needed for -UWIN64)
+
+=item * B<-Duselongdouble>
+
+set C<USE_LONG_DOUBLE := define> (GCC only)
+
+=item * B<-Dusequadmath>
+
+set both C<USE_QUADMATH := define> and C<I_QUADMATH := define> (GCC only)
+
+=item  * B<-Dusesitecustomize>
+
+set C<USE_SITECUST := define>
+
+=item * B<-Udefault_inc_excludes_dot>
+
+unsets C<# DEFAULT_INC_EXCLUDES_DOT := define> (comments out the line)
 
 =item * B<-Dbccold>
 
@@ -101,10 +125,10 @@ sets CFG = Debug
 
 sets INST_DRV to a new value (default is "c:")
 
-=item * B<-DINST_TOP=...>
+=item * B<-DINST_TOP=...> or B<-Dprefix=...>
 
-sets INST_DRV to a new value (default is "$(INST_DRV)\perl"), this is
-where perl will be installed when C<< [nd]make install >> is run.
+sets INST_TOp to a new value (default is "$(INST_DRV)\perl"), this is
+where perl will be installed when C<< [ng]make install >> is run.
 
 =item * B<-DINST_VER=...>
 
@@ -143,9 +167,11 @@ Set the cf_email option (Config.pm)
 
 =item * B<-Accflags=...>
 
-Adds the option to BUILDOPT. This is implemented differently for
-B<nmake> and B<dmake>.
-Returns the name of the outputfile.
+Sets C<BUILDOPTEXTRA>
+
+=item * B<-Aldflags=...>
+
+Adds and sets C<PRIV_LINK_FLAGS>
 
 =back
 
@@ -153,44 +179,54 @@ Returns the name of the outputfile.
 
 my %win32_makefile_map = (
     nmake => "Makefile",
-    dmake => "makefile.mk",
+    gmake => "GNUmakefile",
 );
 
 sub Configure_win32 {
     my($command, $win32_maker, @args ) = @_;
     $win32_maker ||= 'nmake'; $win32_maker = lc $win32_maker;
-    my $is_dmake = $win32_maker eq 'dmake';
     my $is_nmake = $win32_maker eq 'nmake';
+    my $is_gmake = $win32_maker eq 'gmake';
 
     local $_;
     my %opt_map = (
-        "-Dusethreads"          => "USE_ITHREADS",
-        "-Duseithreads"         => "USE_ITHREADS",
-        "-Duseperlio"           => "USE_PERLIO",
-        "-Dusemultiplicity"     => "USE_MULTI",
-        "-Duseimpsys"           => "USE_IMP_SYS",
-        "-Uuseimpsys"           => "USE_IMP_SYS",
-        "-Dusemymalloc"         => "PERL_MALLOC",
-        "-Duselargefiles"       => "USE_LARGE_FILES",
-        "-Uuseshrplib"          => "BUILD_STATIC",
-        "-UWIN64"               => "WIN64",
-        "-DDEBUGGING"           => "USE_DEBUGGING",
-        "-DINST_DRV"            => "INST_DRV",
-        "-DINST_TOP"            => "INST_TOP",
-        "-DINST_VER"            => "INST_VER",
-        "-DINST_ARCH"           => "INST_ARCH",
-        "-Dcf_email"            => "EMAIL",
-        "-DCCTYPE"              => "CCTYPE",
-        "-Dgcc_v3_2"            => "USE_GCC_V3_2",
-        "-DGCC_4XX"             => "GCC_4XX",
-        "-DGCCWRAPV"            => "GCCWRAPV",
-        "-DGCCHELPERDLL"        => "GCCHELPERDLL",
-        "-Dbccold"              => "BCCOLD",
-        "-DCCHOME"              => "CCHOME",
-        "-DIS_WIN95"            => "IS_WIN95",
-        "-DCRYPT_SRC"           => "CRYPT_SRC",
-        "-DCRYPT_LIB"           => "CRYPT_LIB",
-        "-DEXTRALIBDIRS"        => "EXTRALIBDIRS",
+        "-Dusethreads"               => "USE_ITHREADS",
+        "-Duseithreads"              => "USE_ITHREADS",
+        "-Duseperlio"                => "USE_PERLIO",
+        "-Dusemultiplicity"          => "USE_MULTI",
+        "-Duseimpsys"                => "USE_IMP_SYS",
+        "-Uuseimpsys"                => "USE_IMP_SYS",
+        "-Dusemymalloc"              => "PERL_MALLOC",
+        "-Duselargefiles"            => "USE_LARGE_FILES",
+        "-Duse64bitint"              => "USE_64_BIT_INT",
+        "-Duselongdouble"            => "USE_LONG_DOUBLE",
+        "-Dusequadmath"              => "USE_QUADMATH",
+        "-Dusesitecustomize"         => "USE_SITECUST",
+        "-Uuseshrplib"               => "BUILD_STATIC",
+        "-Udefault_inc_excludes_dot" => "DEFAULT_INC_EXCLUDES_DOT",
+        "-UWIN64"                    => "WIN64",
+        "-Uusethreads"               => "USE_ITHREADS",
+        "-Uuseithreads"              => "USE_ITHREADS",
+        "-UUSE_MINGW_ANSI_STDIO"     => "USE_MINGW_ANSI_STDIO",
+        "-DDEBUGGING"                => "USE_DEBUGGING",
+        "-DINST_DRV"                 => "INST_DRV",
+        "-DINST_TOP"                 => "INST_TOP",
+        "-Dprefix"                   => "INST_TOP",
+        "-DINST_VER"                 => "INST_VER",
+        "-DINST_ARCH"                => "INST_ARCH",
+        "-Dcf_email"                 => "EMAIL",
+        "-DCCTYPE"                   => "CCTYPE",
+        "-Dgcc_v3_2"                 => "USE_GCC_V3_2",
+        "-DGCC_4XX"                  => "GCC_4XX",
+        "-DGCCWRAPV"                 => "GCCWRAPV",
+        "-DGCCHELPERDLL"             => "GCCHELPERDLL",
+        "-Dbccold"                   => "BCCOLD",
+        "-DCCHOME"                   => "CCHOME",
+        "-DGCCBIN"                   => "GCCBIN",
+        "-DIS_WIN95"                 => "IS_WIN95",
+        "-DCRYPT_SRC"                => "CRYPT_SRC",
+        "-DCRYPT_LIB"                => "CRYPT_LIB",
+        "-DEXTRALIBDIRS"             => "EXTRALIBDIRS",
     );
 # %opts hash-values:
 # undef  => leave option as-is when no override (makefile default)
@@ -198,67 +234,97 @@ sub Configure_win32 {
 # (true) => enable option when no override (change value, unless
 #           $key =~ /^(?:PERL|USE)_/) (forced default)
     my %opts = (
-        USE_MULTI       => 0, # default define
-        USE_ITHREADS    => 0, # default define
-        USE_IMP_SYS     => 0, # default define
-        USE_PERLIO      => 1, # useperlio should be the default!
-        USE_LARGE_FILES => 0, # default define
-        PERL_MALLOC     => 0,
-        BUILD_STATIC    => 0,
-        USE_DEBUGGING   => 0,
-        INST_DRV        => undef,
-        INST_TOP        => undef,
-        INST_VER        => '',
-        INST_ARCH       => '',
-        EMAIL           => undef,  # used to be $smoker,
-        CCTYPE          => undef,  # used to be $win32_cctype,
-        USE_GCC_V3_2    => 0,
-        GCC_4XX         => 0,
-        GCCWRAPV        => 0,
-        GCCHELPERDLL    => undef,
-        BCCOLD          => 0,
-        CCHOME          => undef,
-        WIN64           => 1,
-        IS_WIN95        => 0,
-        CRYPT_SRC       => undef,
-        CRYPT_LIB       => undef,
-        EXTRALIBDIRS    => undef,
+        USE_MULTI                => 1,
+        USE_ITHREADS             => 1,
+        USE_IMP_SYS              => 1,
+        USE_PERLIO               => 1,
+        USE_LARGE_FILES          => 0,        # default define
+        PERL_MALLOC              => 0,
+        BUILD_STATIC             => 0,
+        USE_64_BIT_INT           => 0,
+        USE_LONG_DOUBLE          => 0,
+        USE_QUADMATH             => 0,
+        I_QUADMATH               => 0,
+        WIN64                    => 1,
+        USE_SITECUST             => 0,
+        DEFAULT_INC_EXCLUDES_DOT => 1,
+        USE_MINGW_ANSI_STDIO     => 1,
+        USE_DEBUGGING            => 0,
+        INST_DRV                 => undef,
+        INST_TOP                 => undef,
+        INST_VER                 => '',
+        INST_ARCH                => '',
+        EMAIL                    => undef,    # used to be $smoker,
+        CCTYPE                   => undef,    # used to be $win32_cctype,
+        USE_GCC_V3_2             => 0,
+        GCC_4XX                  => 0,
+        GCCWRAPV                 => 0,
+        GCCHELPERDLL             => undef,
+        BCCOLD                   => 0,
+        CCHOME                   => undef,
+        GCCBIN                   => 'GCC',
+        IS_WIN95                 => 0,
+        CRYPT_SRC                => undef,
+        CRYPT_LIB                => undef,
+        EXTRALIBDIRS             => undef,
     );
 
     # $undef_re: regex for options that should be UNcommented for -Uxxx
     my $undef_re  = qr/WIN64/;
 
     # $def_re: regex for options that should be UNcommented for -Dxxx
-    my $def_re = qr/((?:(?:PERL|USE|IS|GCC)_\w+)|BCCOLD|GCCWRAPV)/;
+    my $def_re = qr/((?:(?:DEFAULT|PERL|USE|IS|GCC|I)_\w+)|BCCOLD|GCCWRAPV)/;
 
     my @w32_opts = grep ! /^$def_re/, keys %opts;
     my $config_args = join " ",
         grep /^-[DU][a-z_]+/, quotewords( '\s+', 1, $command );
     push @args, "config_args=$config_args";
 
-    my @buildopt;
+    my @adjust_opts = grep {
+        /^-A(?:ccflags|ldflags)=/
+    } quotewords('\s+', 1, $command);
+    my $adjust_ccflags = join(
+        " ",
+        map {
+            s/^-Accflags=(["']?)(.+?)\1// ? $2 : ()
+        } grep { /^-Accflags=/ } @adjust_opts
+    );
+    my $adjust_ldflags = join(
+        " ",
+        map {
+            s/^-Aldflags=(["']?)(.+?)\1// ? $2 : ()
+        } grep { /^-Aldflags=/ } @adjust_opts
+    );
+
     $command =~ m{^\s*\./Configure\s+(.*)} or die "unable to parse command";
     my $cmdln = $1;
     foreach ( quotewords( '\s+', 1, $cmdln ) ) {
         m/^-[des]{1,3}$/ and next;
         m/^-Dusedevel$/  and next;
-        if ( /^-Accflags=(['"]?)(.+)\1/ ) { #emacs' syntaxhighlite
-           push @buildopt, $2;
-           next;
+        m/^-A(ccflags|ldflags)/ and next;
+        if (my( $option, $value ) = /^(-[DU]\w+)(?:=(.+))?$/) {
+            die "invalid option '$_'" unless exists $opt_map{$option};
+            $opts{$opt_map{$option}} = $value ? $value : 1;
+            $option =~ /^-U/ and $opts{$opt_map{$option}} = 0;
         }
-        my( $option, $value ) = /^(-[DU]\w+)(?:=(.+))?$/;
-        die "invalid option '$_'" unless exists $opt_map{$option};
-        $opts{$opt_map{$option}} = $value ? $value : 1;
-        $option =~ /^-U/ and $opts{$opt_map{$option}} = 0;
     }
 
+    # Handle some switches that impact more make-vars
+    if ( $cmdln =~ /-Uusei?threads\b/ ) {
+        $opts{USE_MULTI} = $opts{USE_ITHREADS} = $opts{USE_IMP_SYS} = 0;
+
+    }
+    if ( $cmdln =~ /-Dusequadmath\b/ ) {
+        $opts{USE_QUADMATH} = $opts{I_QUADMATH} = 1;
+    }
     # If you set one, we do all, so you can have fork()
     # unless you set -Uuseimpsys
     if ( $cmdln !~ /-Uuseimpsys\b/ ) {
         if ( $opts{USE_MULTI} || $opts{USE_ITHREADS} || $opts{USE_IMP_SYS} ) {
             $opts{USE_MULTI} = $opts{USE_ITHREADS} = $opts{USE_IMP_SYS} = 1;
         }
-    } else {
+    }
+    else {
         if ( $opts{USE_MULTI} || $opts{USE_ITHREADS} ) {
             $opts{USE_MULTI} = $opts{USE_ITHREADS} = 1;
         }
@@ -273,19 +339,27 @@ sub Configure_win32 {
     # If you -Dbccold you 'll *want* CCTYPE = BORLAND
     $opts{CCTYPE} = "BORLAND" if $opts{BCCOLD};
 
-    local (*ORG, *NEW);
-    my $in =  "win32/$win32_makefile_map{ $win32_maker }";
-    my $out = "win32/smoke.mk";
+    printf "* %-25s = %s\n", $_, $opts{$_} for grep $opts{$_}, sort keys  %opts;
 
-    open ORG, "< $in"  or die "unable to open '$in': $!";
-    open NEW, "> $out" or die "unable to open '$out': $!";
+    local (*ORG, *NEW);
+    my $maker = $win32_makefile_map{ $win32_maker }
+      or die "no make file for $win32_maker";
+    my $in =  "win32/$maker";
+    my $out = "win32/smoke.mk";
+    open(ORG, "<:raw", $in) or die "Cannot line-end-check '$in': $!";
+    my $dummy = <ORG>;
+    close(ORG); undef(*ORG);
+    my $layer = $dummy =~ /\015\012\Z/ ? ':crlf' : '';
+
+    open ORG, "<$layer", $in  or die "unable to open '$in': $!";
+    open NEW, ">:crlf", $out or die "unable to open '$out': $!";
     my $donot_change = 0;
+    my $check_linkflags = $adjust_ldflags ? 1 : 0;
     while (<ORG>) {
         if ( $donot_change ) {
             # need to help the Win95 build
-            $is_dmake and s/\b$win32_makefile_map{ $win32_maker }\b/smoke.mk/;
             if (m/^\s*CFG_VARS\s*=/) {
-                my( $extra_char, $quote ) = $is_nmake
+                my( $extra_char, $quote ) = ($is_nmake || $is_gmake)
                     ? ( "\t", '"' ) : ("~", "" );
                 $_ .= join "", map "\t\t$quote$_$quote\t${extra_char}\t\\\n",
                                    grep /\w+=/, @args;
@@ -293,38 +367,45 @@ sub Configure_win32 {
             print NEW $_;
             next;
         } else {
-            if ( $donot_change = /^#+ CHANGE THESE ONLY IF YOU MUST #+$/ ) {
-                # We will now insert the BULDOPT lines
-                my $bo_tmpl = $win32_maker eq 'nmake'
-                    ? "BUILDOPT\t= \$(BUILDOPT) %s" : "BUILDOPT\t+= %s";
-                my $buildopt = join "\n",
-                                    map sprintf( $bo_tmpl, $_ ) => @buildopt;
-                $buildopt and $_ = "$buildopt\n$_\n"
-            };
+            $donot_change = /^#+ CHANGE THESE ONLY IF YOU MUST #+/;
         }
 
         # Only change config stuff _above_ that line!
-        if ( m/^\s*#?\s*$def_re(\s*\*?=\s*define)$/ ) {
+        if ( m/^\s*#?\s*$def_re(\s*[\*:]?=\s*define)$/ ) {
             $_ = ($opts{$1} ? "" : "#") . $1 . $2 . "\n";
         }
-        elsif (m/\s*#?\s*($undef_re)(\s*\*?=\s*undef)$/) {
+        elsif (m/\s*#?\s*($undef_re)(\s*[*:]?=\s*undef)$/) {
             $_ = ($opts{$1} ? "#" : "") . "$1$2\n";
         }
-        elsif (m/^\s*#?\s*(CFG\s*\*?=\s*Debug)$/) {
+        elsif (m/^\s*#?\s*(CFG\s*[*:]?=\s*Debug)$/) {
             $_ = ($opts{USE_DEBUGGING} ? "" : "#") . $1 . "\n";
         }
-        elsif (m/^\s*#?\s*(BUILD_STATIC)\s*=\s*(.*)$/) {
-            my( $macro, $mval ) = ( $1, $2 );
+        elsif (m/^\s*#?\s*(BUILD_STATIC)\s*([*:]?=)\s*(.*)$/) {
+            my( $macro, $op, $mval ) = ( $1, $2, $3);
             if ( $config_args =~ /-([UD])useshrplib\b/ ) {
-                $_ = ( $1 eq 'D' ? "#" : "" ) . "$macro = $mval\n";
+                $_ = ( $1 eq 'D' ? "#" : "" ) . "$macro $op $mval\n";
             }
+        }
+        elsif (m/^\s*#?\s*(BUILDOPT)\s*([*:]?)=\s*\$\(BUILDOPTEXTRA\)/) {
+            my $prf = $2 ? $2 : '';
+            if ($adjust_ccflags) {
+                # Set BUILDOPTEXTRA to $adjust_ccflags
+                s/^\s*#\s*//;
+                $_ = "BUILDOPTEXTRA\t${prf}= $adjust_ccflags\n$_";
+             }
+             if ($adjust_ldflags) {
+                $_ .= "\n# Additional linker flags\n"
+                    . "PRIV_LINK_FLAGS\t${prf}= $adjust_ldflags\n";
+             }
         }
         else {
             foreach my $cfg_var ( grep defined $opts{ $_ }, @w32_opts ) {
-                if (  m/^\s*#?\s*($cfg_var\s*\*?=)\s*(.*)$/ ) {
+                if (  m/^\s*#?\s*($cfg_var\s*(\*|:)?=)\s*(.*)$/ ) {
+                    my ($name, $val) = ($1, $2);
+                    next if $_ =~ /^#/ and !$opts{ $cfg_var };
                     $_ =  $opts{ $cfg_var } ?
-                        "$1 $opts{ $cfg_var }\n":
-                        "#$1 $2\n";
+                        "$name $opts{ $cfg_var }\n":
+                        "#$name $val\n";
                     last;
                 }
             }
@@ -506,13 +587,13 @@ sub grepccmsg {
             # Error Ennn:: error description
             '(^(?:(?:Warning W)|(?:Error E))\d+ .+? \d+: .+?$)',
 
-	'icc' => # Intel C on Linux
-	    # pp_sys.c(4412): warning #num: text
+        'icc' => # Intel C on Linux
+            # pp_sys.c(4412): warning #num: text
             #       SETi( getpriority(which, who) );
             #       ^
-	    '(^.*?\([0-9]+\): (?:warning #[0-9]+|error): .+$)',
-	'icpc' => # Intel C++
-	    '(^.*?\([0-9]+\): (?:warning #[0-9]+|error): .+$)',
+            '(^.*?\([0-9]+\): (?:warning #[0-9]+|error): .+$)',
+        'icpc' => # Intel C++
+            '(^.*?\([0-9]+\): (?:warning #[0-9]+|error): .+$)',
     );
     exists $OS2PAT{ lc $cc } or $cc = 'gcc';
     my $pat = $OS2PAT{ lc $cc };
@@ -629,10 +710,12 @@ sub set_local_patch {
     open PLIN,  "< $plh" or return 0;
     open PLOUT, "> $pln" or return 0;
     my $seen=0;
+    my $done=0;
     while ( <PLIN> ) {
-        if ( /\t,NULL/ and $seen ) {
+        if ( /^(\s+),NULL/ and $seen ) {
+            $done++;
             while ( my $c = shift @descr ) {
-                print PLOUT qq{\t,"$c"\n};
+                print PLOUT qq{$1,"$c"\n};
            }
         }
         $seen++ if /local_patches\[\]/;
@@ -640,6 +723,12 @@ sub set_local_patch {
     }
     close PLIN;
     close PLOUT or return 0;
+
+    if ( not $done ) {
+        require Carp;
+        Carp::carp("Failed to update patchlevel.h. Content not as expected?");
+        return 0;
+    }
 
     -e $plb and 1 while unlink $plb;
     my $errno = "$!";
@@ -698,9 +787,9 @@ sub get_config {
     # Cheat. Force a break marker as a line after the last line.
     foreach (<CONF>, "=") {
         m/^#/ and next;
-        s/\s+$// if m/\s/;	# Blanks, new-lines and carriage returns. M$
+        s/\s+$// if m/\s/;      # Blanks, new-lines and carriage returns. M$
         if (m:^/:) {
-      	    m:^/(.*)/$:;
+            m:^/(.*)/$:;
             defined $1 or die "Policy target line didn't end with '/': '$_'";
             push @target, $1;
             next;
@@ -715,7 +804,7 @@ sub get_config {
         # Break marker, so process the lines we have.
         if (@target > 1) {
             warn "Multiple policy target lines " .
-       	         join (", ", map {"'$_'"} @target) . " - will use first";
+                 join (", ", map {"'$_'"} @target) . " - will use first";
         }
         my %conf = map { $_ => 1 } @conf;
         if (keys %conf == 1 and exists $conf{""} and !@target) {
@@ -774,16 +863,60 @@ sub get_patch {
 
         if ( $patch_level ) {
             if ($patch_level =~ /\s/) {
-                my ($branch, $date, $sha, $describe) = split(' ', $patch_level);
-                (my $short_describe = $describe) =~ s/^GitLive-//;
-                return [$sha, $short_describe, $branch];
+                my ($branch, $sha, $describe) = (split ' ', $patch_level)[0, -2, -1];
+                return [$sha, $describe, $branch];
             }
-            else {
-                return [$patch_level];
-            }
+            return [$patch_level];
         }
         return [ '' ];
     }
+
+    my $dot_git_patch = File::Spec->catfile( $ddir, '.git_patch' );
+
+    local *DOTGITPATCH;
+    if ( open DOTGITPATCH, "< $dot_git_patch" ) {
+        chomp( $patch_level = <DOTGITPATCH> );
+        close DOTGITPATCH;
+        if ( $patch_level ) {
+
+            return undef if ( $patch_level =~ /^\$Format/ ); # Not expanded
+
+            my @dot_git_patch = split '\|', $patch_level;
+
+            # As we do not use time information, we can just pick the first and
+            # the last two elements
+            my ($sha, $describe, $names) = @dot_git_patch[0, -2, -1];
+            my @names = split /,\s*/, $names;
+
+            my $branch = undef; # or blead?
+
+            my ($first, $last) = @names[0, -1];
+            if ($first =~ /^HEAD -> (.*)/ ) {
+                # HEAD -> my_branch
+                # https://github.com/Perl/perl5/archive/refs/heads/blead.tar.gz
+                $branch = $1;
+            } elsif ( $first =~ /^tag: .*/ ) {
+                # tag: v5.41.6
+                # https://github.com/Perl/perl5/archive/refs/tags/v5.41.6.tar.gz
+                $branch = $1;
+            } elsif ( $first ne $last ) {
+                # Pull request with source branch in Perl/perl5 repo
+                # https://github.com/Perl/perl5/archive/refs/pull/22991/head.tar.gz
+                # OR
+                # branch pushed on Perl/perl5
+                # https://github.com/Perl/perl5/archive/refs/heads/yves/handle_weird_preprocessor_stmt_in_HeaderParser_pm.tar.gz
+                $branch = $last;
+            } else { #( $first eq $last ) {
+                # Pull request with source branch in fork
+                # https://github.com/Perl/perl5/archive/refs/pull/22989/head.tar.gz
+                $last =~ /^ref\/pull\/(.*)\/head/;
+                $branch = $1;
+            }
+
+            return [$sha, $describe, $branch];
+        }
+    }
+
 
     # There does not seem to be a '.patch', try 'git_version.h'
     # We are looking for the line: #define PERL_PATCHNUM "v5.21.6-224-g6324db4"
@@ -1155,7 +1288,8 @@ sub whereis {
             $logger->log_debug("    check executable %s", $fname);
             if ( -x $fname ) {
                 $logger->log_info("Found %s as %s", $prog, $fname);
-                return $fname =~ /\s/ ? qq/"$fname"/ : $fname;
+                return $fname;
+                #return $fname =~ /\s/ ? qq/"$fname"/ : $fname;
             }
         }
     }
@@ -1289,6 +1423,10 @@ sub time_in_hhmm {
     $diff -=  60 * $mins;
     $diff = sprintf "%.${digits}f", $diff;
 
+    # GH#78 that sprintf() can round up to 60 secs
+    # that can look strange: 18 minutes 60 seconds
+    $mins++, $diff -= 60 if $diff >= 60;
+
     my @parts;
     $days and push @parts, sprintf "%d day%s",   $days, $days == 1 ? "" : 's';
     $hour and push @parts, sprintf "%d hour%s",  $hour, $hour == 1 ? "" : 's';
@@ -1359,11 +1497,11 @@ sub skip_filter {
     return m,^ *$, ||
     m,^\t, ||
     m,^PERL=./perl\s+./runtests choose, ||
-    m,^	AutoSplitting, ||
+    m,^\s+AutoSplitting, ||
     m,^\./miniperl , ||
     m,^\s*autosplit_lib, ||
     m,^\s*PATH=\S+\s+./miniperl, ||
-    m,^	Making , ||
+    m,^\s+Making , ||
     m,^make\[[12], ||
     m,make( TEST_ARGS=)? (_test|TESTFILE=|lib/\w+.pm), ||
     m,^make:.*Error\s+\d, ||
@@ -1402,8 +1540,7 @@ sub skip_filter {
     m,\d+\s+[Ff]ile\(s\) copied, ||
     m,[/\\](?:mini)?perl\.exe ,||
     m,^\t?cd , ||
-    m,^\b[nd]make\b, ||
-    m,dmake\.exe:?\s+-S, ||
+    m,^\b[ng]make\b, ||
     m,^\s+\d+/\d+ skipped: , ||
     m,^\s+all skipped: , ||
     m,^\s*pl2bat\.bat [\w\\]+, ||
