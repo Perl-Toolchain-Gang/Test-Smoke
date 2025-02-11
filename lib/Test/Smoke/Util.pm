@@ -902,10 +902,13 @@ sub get_patch {
             } elsif ( $first ne $last ) {
                 # Pull request with source branch in Perl/perl5 repo
                 # https://github.com/Perl/perl5/archive/refs/pull/22991/head.tar.gz
+                # OR
+                # branch pushed on Perl/perl5
+                # https://github.com/Perl/perl5/archive/refs/heads/yves/handle_weird_preprocessor_stmt_in_HeaderParser_pm.tar.gz
                 $branch = $last;
             } else { #( $first eq $last ) {
                 # Pull request with source branch in fork
-                # https://github.com/Perl/perl5/archive/refs/pull/22981/head.tar.gz
+                # https://github.com/Perl/perl5/archive/refs/pull/22989/head.tar.gz
                 $last =~ /^ref\/pull\/(.*)\/head/;
                 $branch = $1;
             }
