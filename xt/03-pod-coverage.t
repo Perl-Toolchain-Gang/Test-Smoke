@@ -35,6 +35,7 @@ gitbin
 gitbranchfile
 gitdfbranch
 gitdir
+gitbare
 gitorigin
 handlequeue_config
 harness3opts

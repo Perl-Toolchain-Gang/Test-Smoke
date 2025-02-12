@@ -39,6 +39,121 @@ There are 2 repositories, they both need to be updated:
 The first (mirror) repository has the github.com/Perl repository as its
 (origin) remote. The second repository is used to run the smoker from.
 
+=cut
+
+sub sync {
+    my $self = shift;
+
+    if ( $self->{gitbare} ) {
+        $self->_sync_bare;
+    } else {
+        $self->_sync_full_checkout;
+    }
+
+    return $self->check_dot_patch;
+}
+
+=head2 _sync_full_checkout()
+
+For the proxy-repository we do:
+
+    git fetch --all
+    git remote prune origin
+    git reset --hard origin/$gitbranch
+
+For the working-repository we do:
+
+    git clean -dfx
+    git fetch --all
+    git reset --hard origin/$gitbranch
+
+=cut
+
+sub _sync_full_checkout {
+    my $self = shift;
+
+    my $gitbin = Test::Smoke::Util::Execute->new(
+        command => $self->{gitbin},
+        verbose => $self->verbose,
+    );
+    use Carp;
+    my $cwd = cwd();
+    # Handle the proxy-clone
+    if ( ! -d $self->{gitdir} || ! -d catdir($self->{gitdir}, '.git') ) {
+        my $cloneout = $gitbin->run(
+            clone => $self->{gitorigin},
+            $self->{gitdir},
+            ($^O eq 'MSWin32' ? ('--config', 'core.autocrlf=input') : ()),
+            '2>&1'
+        );
+        if ( my $gitexit = $gitbin->exitcode ) {
+            croak("Cannot make initial clone: $self->{gitbin} exit $gitexit");
+        }
+        $self->log_debug("[git clone from $self->{gitorigin}]: $cloneout");
+    }
+
+    my $gitbranch = $self->get_git_branch;
+    chdir $self->{gitdir} or croak("Cannot chdir($self->{gitdir}): $!");
+    $self->log_debug("chdir($self->{gitdir})");
+
+    my $gitout = $gitbin->run(remote => 'update', '--prune', '2>&1');
+    $self->log_debug("gitorigin(update --prune): $gitout");
+
+    $gitout = $gitbin->run(checkout => $gitbranch, '2>&1');
+    $self->log_debug("gitorigin(checkout): $gitout");
+
+    $gitout = $gitbin->run(reset => '--hard', "origin/$gitbranch", '2>&1');
+    $self->log_debug("gitorigin(reset --hard): $gitout");
+
+    # Now handle the working-clone
+    chdir $cwd or croak("Cannot chdir($cwd): $!");
+    $self->log_debug("chdir($cwd)");
+    # make the working-clone if it doesn't exist yet
+    if ( ! -d $self->{ddir} || ! -d catdir($self->{ddir}, '.git') ) {
+        # It needs to be empty ...
+        my $cloneout = $gitbin->run(
+            clone         => $self->{gitdir},
+            $self->{ddir},
+            ($^O eq 'MSWin32' ? ('--config', 'core.autocrlf=input') : ()),
+            '2>&1'
+        );
+        if ( my $gitexit = $gitbin->exitcode ) {
+            croak("Cannot make smoke clone: $self->{gitbin} exit $gitexit");
+        }
+        $self->log_debug("[git clone $self->{gitdir}]: $cloneout");
+    }
+
+    chdir $self->{ddir} or croak("Cannot chdir($self->{ddir}): $!");
+    $self->log_debug("chdir($self->{ddir})");
+
+    # reset the working-dir to HEAD of the last branch smoked
+    $gitout = $gitbin->run(reset => '--hard', 'HEAD', '2>&1');
+    $self->log_debug("working-dir(reset --hard): $gitout");
+
+    # remove all untracked files and dirs
+    $gitout = $gitbin->run(clean => '-dfx', '2>&1');
+    $self->log_debug("working-dir(clean -dfx): $gitout");
+
+    # update from origin
+    $gitout = $gitbin->run(fetch => 'origin', '2>&1');
+    $self->log_debug("working-dir(fetch origin): $gitout");
+
+    # now checkout the branch we want smoked
+    $gitout = $gitbin->run(checkout => $gitbranch, '2>&1');
+    $self->log_debug("working-dir(checkout $gitbranch): $gitout");
+
+    # Make sure HEAD is exactly what the branch is
+    $gitout = $gitbin->run(reset => '--hard', "origin/$gitbranch", '2>&1');
+    $self->log_debug("working-dir(reset --hard): $gitout");
+
+    $self->make_dot_patch();
+
+    chdir $cwd;
+}
+
+
+=head2 _sync_bare()
+
 For the mirror-repository we do:
 
     git clone --mirror $gitorigin $gitdir # if not set up
@@ -54,7 +169,7 @@ For the working-repository we do:
 
 =cut
 
-sub sync {
+sub _sync_bare {
     my $self = shift;
 
     my $gitbin = Test::Smoke::Util::Execute->new(
@@ -140,7 +255,6 @@ sub sync {
 
     chdir $cwd;
 
-    return $self->check_dot_patch;
 }
 
 =head2 $git->get_git_branch()

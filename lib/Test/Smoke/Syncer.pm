@@ -90,11 +90,12 @@ my %CONFIG = (
     df_gitbin        => 'git',
     df_gitorigin     => 'https://github.com/Perl/perl5.git',
     df_gitdir        => undef,
+    df_gitbare        => 0,
     df_gitdfbranch   => 'blead',
     df_gitbranchfile => undef,
 
     git => {
-        allowed  => [qw(gitbin gitorigin gitdir gitdfbranch gitbranchfile)],
+        allowed  => [qw(gitbin gitorigin gitdir gitbare gitdfbranch gitbranchfile)],
         required => [qw(gitbin gitorigin gitdir)],
         class    => 'Test::Smoke::Syncer::Git',
     },

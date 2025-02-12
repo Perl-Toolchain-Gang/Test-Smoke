@@ -28,6 +28,7 @@ sub synctree_config { # synctree.pl
                 gitbin(),
                 gitorigin(),
                 gitdir(),
+                gitbare(),
                 gitdfbranch(),
                 gitbranchfile(),
             ],
@@ -627,6 +628,21 @@ sub gitdir {
         configord  => 3,
     );
 }
+
+sub gitbare {
+    return $opt->new(
+        name       => 'gitbare',
+        option     => '!',
+        default    => 0,
+        helptext   => "Clone as a bare repository",
+        configtext => "Clone bare git repository?",
+        configtype => 'prompt_yn',
+        configalt  => sub { [qw/ y N /] },
+        configdft  => sub {'n'},
+    );
+}
+
+
 
 sub gitdfbranch {
     return $opt->new(
