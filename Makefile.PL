@@ -79,7 +79,7 @@ my @scripts = qw(
     smokestatus.pl chkbcfg.pl sysinfo.pl
     tssynctree.pl tsrunsmoke.pl tssendrpt.pl tsarchive.pl
     tssmokeperl.pl tsreport.pl tsrepostjsn.pl
-    tsw32configure.pl tsconfigsmoke.pl
+    tsw32configure.pl tsconfigsmoke.pl tsarchivelog.pl
 );
 my @pod_scripts = grep {
     local (@ARGV, $/) = (catfile('bin', $_));
@@ -156,6 +156,7 @@ my %TEST_REQUIRES = (
     'HTTP::Daemon'     => 0,
     'HTTP::Message'    => 0,
     'JSON'             => 4.10,
+    'Path::Tiny'       => 0, # To be revised (?). Only used by tsarchivelog.pl
     ($mmver > 6.64 ? (%BUILD_REQUIRES) : ()),
 );
 

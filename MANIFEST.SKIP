@@ -2,7 +2,7 @@
 ~$
 \.swp$
 .gitignore
-xt/
+^xt/
 klad/
 contrib/
 mkdist.sh
@@ -14,12 +14,14 @@ sprove.pl
 tags
 TAGS
 blib/
-.git
+\.git/
+\.gitattributes
 pm_to_blib
 ^Makefile$
 MYMETA\..+
 cover_db/
 sandbox/
+\.bak$
 bin/configsmoke.pl
 \.github
 Makefile.PL.bak
