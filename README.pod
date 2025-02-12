@@ -234,6 +234,8 @@ Contributors and/or co-authors:
                         Allen Smith
                         David Woolger
                         Campo Wijerman
+    Other               James E Keenan
+                        Andrew Hewus Fresh
 
 and all the people having useful suggestions and nits, starting at
 YAPC::Europe-2.0.01, where Michael talked Merijn into simplifying his own

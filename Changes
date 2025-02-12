@@ -1,4 +1,7 @@
 1.84 2025-??-??
+ - Use bare repository - Thanks to Andrew Hewus Fresh
+ - More Win32 changes - Thanks to Christian Walde
+ - Entire content is written to logs - Thanks to James E Keenan
  - Make snapshot syncer compatible with git archive (e.g. GitHub tarballs)
  - Syncer copy: Make .patch if not already there
  - Explicit rsync protocol for default rsync URL
