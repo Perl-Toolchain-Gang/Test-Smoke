@@ -6,10 +6,6 @@ Makefile.PL
 HOWTO.md
 cpanfile
 README.pod
-bin/chkbcfg.pl
-bin/patchtree.pl
-bin/smokestatus.pl
-bin/sysinfo.pl
 bin/tsarchive.pl
 bin/tsarchivelog.pl
 bin/tshandlequeue.pl
@@ -63,12 +59,9 @@ lib/Test/Smoke/Mailer/Mail_X.pm
 lib/Test/Smoke/Mailer/MIME_Lite.pm
 lib/Test/Smoke/Mailer/SendEmail.pm
 lib/Test/Smoke/Mailer/Sendmail.pm
-lib/Test/Smoke/maint_dfconfig
 lib/Test/Smoke/ObjectBase.pm
 lib/Test/Smoke/Patcher.pm
-lib/Test/Smoke/perl58x.cfg
 lib/Test/Smoke/perlcurrent.cfg
-lib/Test/Smoke/perlmaint.cfg
 lib/Test/Smoke/Policy.pm
 lib/Test/Smoke/Poster.pm
 lib/Test/Smoke/Poster/Base.pm
@@ -77,7 +70,6 @@ lib/Test/Smoke/Poster/HTTP_Tiny.pm
 lib/Test/Smoke/Poster/LWP_UserAgent.pm
 lib/Test/Smoke/PostQueue.pm
 lib/Test/Smoke/Reporter.pm
-lib/Test/Smoke/smoke58x_dfconfig
 lib/Test/Smoke/Smoker.pm
 lib/Test/Smoke/SourceTree.pm
 lib/Test/Smoke/Syncer.pm

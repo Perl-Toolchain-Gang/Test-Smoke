@@ -8,9 +8,7 @@ contrib/
 mkdist.sh
 release.sh
 provesmoke
-resmoke.pl
 roadmap.pod
-sprove.pl
 tags
 TAGS
 blib/
@@ -22,7 +20,6 @@ MYMETA\..+
 cover_db/
 sandbox/
 \.bak$
-bin/configsmoke.pl
 \.github
 Makefile.PL.bak
 Test-Smoke-
