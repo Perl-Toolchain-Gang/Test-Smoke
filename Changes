@@ -1,4 +1,12 @@
 1.84 2025-??-??
+ - Remove deprecated files:
+   - bin/configsmoke.pl
+   - bin/chkbcfg.pl
+   - bin/sysinfo.pl
+   - bin/remoske.pl
+   - bin/patchtree.pl
+   - bin/smokestatus.pl
+   - bin/sprove.pl
  - Use bare repository - Thanks to Andrew Hewus Fresh
  - More Win32 changes - Thanks to Christian Walde
  - Entire content is written to logs - Thanks to James E Keenan
