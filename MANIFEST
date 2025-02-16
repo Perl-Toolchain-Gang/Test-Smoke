@@ -5,6 +5,8 @@ MANIFEST.SKIP
 Makefile.PL
 cpanfile
 README.pod
+bin/smokestatus.pl
+bin/sysinfo.pl
 bin/tsarchive.pl
 bin/tsarchivelog.pl
 bin/tshandlequeue.pl
