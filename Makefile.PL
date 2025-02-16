@@ -76,7 +76,7 @@ else { # this will be the default in some time
 }
 
 my @scripts = qw(
-    smokestatus.pl sysinfo.pl
+    tssmokestatus.pl tssysinfo.pl
     tssynctree.pl tsrunsmoke.pl tssendrpt.pl tsarchive.pl
     tssmokeperl.pl tsreport.pl tsrepostjsn.pl
     tsw32configure.pl tsconfigsmoke.pl tsarchivelog.pl
