@@ -419,7 +419,7 @@ sub cfg {
         option     => '=s',
         default    => undef,
         helptext   => "The name of the BuildCFG file.",
-        configtext => "Which build configureations file would you like to use?",
+        configtext => "Which build configurations file would you like to use?",
         configtype => 'prompt_file',
         configfnex => 1,
         configdft  => sub {
