@@ -163,12 +163,6 @@ Small wrapper around B<Test::Smoke::Syncer> that can use the settings
 from the smoke-configuration file. It will bring the source-tree in
 sync.
 
-=item B<tspatchtree.pl>
-
-Small wrapper around B<Test::Smoke::Patcher> that can use the settings
-from the smoke-configuration file. It will apply the patches that are
-specified in the patches-to-be-applied file.
-
 =item B<tsrunsmoke.pl>
 
 Small wrapper around B<Test::Smoke::run_smoke()> that can use the
