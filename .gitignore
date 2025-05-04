@@ -11,3 +11,14 @@ MYMETA.*
 *.bak
 t/config.sh
 Test-Smoke-*.tar.gz
+/*.buildcfg
+/*.gitbranch
+/*.log
+/*.sh
+/*.skiptests
+/*.usernote
+/*.patches
+/*_config
+*.swo
+/patches
+
