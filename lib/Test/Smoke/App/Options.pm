@@ -1053,7 +1053,7 @@ sub qfile {
         allow      => [undef, '', qr{^[\w./:\\-]+$}],
         default    => undef,
         helptext   => 'The qfile keeps the queue of reports to resend.',
-        configtext => "One can now queue reports if they couldn't be delevered.\n"
+        configtext => "One can now queue reports if they couldn't be delivered.\n"
                     . "\tLeave empty for no queue.",
         configdft => sub {undef},
     );
