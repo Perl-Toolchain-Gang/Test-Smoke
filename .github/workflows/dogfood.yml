@@ -1,0 +1,38 @@
+name: Dog Food
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: "latest"
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get -y install wget unzip build-essential curl
+
+      - name: Install more dependencies
+        run: curl -L https://cpanmin.us | sudo perl - System::Info Capture::Tiny CGI::Util LWP::UserAgent
+
+      - name: Prepare arborescence
+        run: mkdir /tmp/smoke && mkdir /tmp/smoke/logs
+
+      - name: Move configs to /tmp/smoke
+        run: mv data/configs /tmp/smoke/
+
+      - name: Move Test-Smoke to /tmp/smoke
+        run: cd .. && cp Test-Smoke /tmp/smoke/ -r
+
+      - name: Smoke
+        run: cd /tmp/smoke/configs && chmod +x smokecurrent.sh && ./smokecurrent.sh
+
+      - name: Logs
+        run: cat /tmp/smoke/logs/smokecurrent.log
