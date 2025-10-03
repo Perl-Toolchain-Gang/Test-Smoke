@@ -1,7 +1,6 @@
 name: Dog Food
 
 on: 
-  push: 
   schedule:
     - cron: '1 1 * * *'
 
