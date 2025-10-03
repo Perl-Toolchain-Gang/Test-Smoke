@@ -2,7 +2,7 @@ name: Dog Food
 
 on: 
   schedule:
-    - cron: '1 1 * * *'
+    - cron: '0 9 * * *'
 
 jobs:
   dogfood:
