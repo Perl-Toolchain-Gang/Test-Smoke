@@ -102,7 +102,7 @@ sub write_as_shell {
 #
 # %s: written by %s v%s
 # on %s
-# NOTE: Changes made in this file will be \*lost\*
+# NOTE: Changes made in this file will be *lost*
 #       after rerunning %s
 #
 # cron: %s
