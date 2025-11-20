@@ -13,7 +13,6 @@ use File::Path;
 use File::Copy;
 use FindBin;
 use lib catdir( $FindBin::Bin, 'lib' );
-use lib $FindBin::Bin;
 use Test::Smoke;
 use Test::Smoke::Reporter;
 use Test::Smoke::Util qw( 
