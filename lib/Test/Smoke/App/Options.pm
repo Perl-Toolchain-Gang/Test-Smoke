@@ -729,7 +729,7 @@ sub hostname {
     return $opt->new(
         name       => 'hostname',
         option     => '=s',
-        deafult    => undef,
+        default    => $hostname,
         helptext   => 'Use the hostname option to override System::Info->hostname',
         configtext => "Use this option to override the default hostname.
 \tLeave empty for default ($hostname)",
