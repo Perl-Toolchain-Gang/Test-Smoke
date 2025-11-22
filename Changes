@@ -1,4 +1,7 @@
-1.84 2025-??-??
+1.85 2026-??-??
+ - Fix renice invokation
+
+1.84 2025-03-12
  - Remove deprecated files:
    - bin/configsmoke.pl
    - bin/chkbcfg.pl
