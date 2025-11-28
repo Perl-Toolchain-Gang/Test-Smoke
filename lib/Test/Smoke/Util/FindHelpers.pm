@@ -45,7 +45,7 @@ our %EXPORT_TAGS = (
 
 =head2 has_module($module)
 
-Retuns true if the named module could be C<requiere>d.
+Retuns true if the named module could be C<require>d.
 
 =cut
 
