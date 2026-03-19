@@ -9,7 +9,7 @@ use Cwd;
 use lib 't';
 use TestLib;
 
-use Test::More tests => 76;
+use Test::More tests => 82;
 use_ok( 'Test::Smoke::Smoker' );
 
 my $debug   = exists $ENV{SMOKE_DEBUG} && $ENV{SMOKE_DEBUG};
@@ -889,43 +889,39 @@ EOOUT
 
 SKIP: {
     local *NOTESTS;
-    open NOTESTS, "> $skip_tests" or skip "Cannot create($skip_tests): $!", 7;
+    open NOTESTS, "> $skip_tests" or skip "Cannot create($skip_tests): $!", 13;
     my @notest = qw{ t/op/skip.t lib/t/skip.t ext/t/skip.t cpan/t/skip.t dist/t/skip.t};
     print NOTESTS "$_\n" for @notest;
     close NOTESTS;
 
     ok -f $skip_tests, "skip_tests file exists";
 
-    my $skip_test = catfile( $dst, 't', 'op', 'skip.t' );
-    $smoker->set_skip_tests;
-    ok -f catfile( $dst, 'MANIFEST.ORG'), "MANIFEST was copied";
-
     my $skip = qq[print "1..0 # SKIP Disabled by Test::Smoke];
-    ok get_file($skip_test) =~ /^\Q$skip\E/,
-       "t/op/skip.t had skip code added";
-
-    my @libext = grep m{^(?:lib|ext|cpan|dist)/} => @notest;
     my $manifest = catfile $dst, 'MANIFEST';
-    my $manifiles = get_file( $manifest );
 
+    $smoker->set_skip_tests;
+    ok ! -f catfile( $dst, 'MANIFEST.ORG'), "MANIFEST was not modified";
+
+    for my $tfile ( @notest ) {
+        my $tsrc = catfile( $dst, split m{/}, $tfile );
+        ok get_file($tsrc) =~ /^\Q$skip\E/,
+           "$tfile had skip code added";
+    }
+
+    my $manifiles = get_file( $manifest );
     my $ok = 1;
-    $ok &&= ! grep $manifiles =~ /^\Q$_\E/m => @libext;
-    ok $ok, "files removed from MANIFEST";
+    $ok &&= grep $manifiles =~ /^\Q$_\E/m => @notest;
+    ok $ok, "MANIFEST is unchanged";
 
     $smoker->unset_skip_tests();
 
-    ok ! -f catfile( $dst, 'MANIFEST.ORG'), "MANIFEST.ORG was removed";
+    for my $tfile ( @notest ) {
+        my $tsrc = catfile( $dst, split m{/}, $tfile );
+        ok get_file($tsrc) !~ /^\Q$skip\E/,
+           "$tfile had skip code removed";
+    }
 
-    ok get_file($skip_test) !~ /^\Q$skip\E/,
-       "t/op/skip.t had skip code removed again";
-
-    my $files = get_file( $manifest );
-
-    $ok = 1;
-    $ok &&= grep $files =~ /^\Q$_\E/m => @libext;
-    ok $ok, "files back in MANIFEST";
-
-    1 while unlink $skip_tests;    
+    1 while unlink $skip_tests;
 }
     rmtree $dst, $verbose;
 }

@@ -1101,16 +1101,11 @@ sub set_skip_tests {
     if ( open SKIPTESTS, "< $self->{skip_tests}" ) {
         my $action = $unset ? 'Unskip' : 'Skip';
         $self->log_info("$action tests from '$self->{skip_tests}'");
-        my @libext;
         my $raw;
         while ( $raw = <SKIPTESTS> ) {
             $raw =~ m/^\s*#/ and next;
             $raw =~ s/(\S+).*/$1/s;
             if ($raw !~ m/\.t$/ and $raw !~ m/test\.pl$/) {
-                next;
-            }
-            if ( $raw =~ m{^(?:lib|ext|cpan|dist)/} ) {
-                push @libext, $raw;
                 next;
             }
             my $tsrc = File::Spec->catfile( $self->{ddir}, $raw );
@@ -1129,7 +1124,6 @@ sub set_skip_tests {
             $self->log_info("\t%s: %sok%s\n", $raw, '', "");
         }
         close SKIPTESTS;
-        @libext and $self->change_manifest( \@libext, $unset );
     } else {
         require Carp;
         Carp::carp("Cannot open($self->{skip_tests}): $!");
