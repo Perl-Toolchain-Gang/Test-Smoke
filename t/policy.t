@@ -13,7 +13,7 @@ use lib $findbin;
 use TestLib;
 use Test::Smoke::Util qw( get_config );
 use Data::Dumper;
-use Test::More tests => 3 + 8 + 24 + 2;
+use Test::More tests => 3 + 8 + 24 + 2 + 4;
 
 use_ok( 'Test::Smoke::Policy' );
 
@@ -118,4 +118,25 @@ sub run_tests {
     isa_ok $p, "Test::Smoke::Policy";
     like $p->{_policy}, "/ccflags='@ccflags'/",
         "Default policy created with '@ccflags'";
+}
+
+{ # Test shell injection prevention in default_Policy
+
+    # _shell_escape_sq should escape single quotes
+    is( Test::Smoke::Policy::_shell_escape_sq("no quotes"),
+        "no quotes", "No-op when no single quotes" );
+
+    is( Test::Smoke::Policy::_shell_escape_sq("-DPATH='/usr/local'"),
+        "-DPATH='\\''\/usr\/local'\\''",
+        "Single quotes escaped with shell-safe sequence" );
+
+    # Verify the generated policy escapes quotes rather than passing them raw
+    my $p = Test::Smoke::Policy->new( undef, 0, "-DPATH='/usr'" );
+    like $p->{_policy}, qr/ccflags=.*\\'/,
+        "Single quotes in ccflags are escaped (contain backslash-quote sequence)";
+
+    # Shell metacharacters without quotes pass through (safe inside single quotes)
+    $p = Test::Smoke::Policy->new( undef, 0, '-DFOO=`whoami`' );
+    like $p->{_policy}, qr/ccflags=.*`whoami`/,
+        "Backticks pass through (harmless inside single quotes)";
 }

@@ -196,6 +196,7 @@ sub default_Policy {
     my $self = shift;
     my @ccflags = @_ ? @_ : qw( -DDEBUGGING );
 
+    my @escaped = map { _shell_escape_sq($_) } @ccflags;
     local $" = " ";
     return <<__EOPOLICY__;
 #!/bin/sh
@@ -205,8 +206,21 @@ sub default_Policy {
 # Be sure to define -DDEBUGGING by default, it's easier to remove
 # it from Policy.sh than it is to add it in on the correct places
 
-ccflags='@ccflags'
+ccflags='@escaped'
 __EOPOLICY__
+}
+
+=head2 _shell_escape_sq( $string )
+
+Escape a string for use inside a single-quoted shell context.
+Replaces each C<'> with C<'\''> (end quote, escaped quote, reopen quote).
+
+=cut
+
+sub _shell_escape_sq {
+    my ($str) = @_;
+    $str =~ s/'/'\\''/g;
+    return $str;
 }
 
 1;
