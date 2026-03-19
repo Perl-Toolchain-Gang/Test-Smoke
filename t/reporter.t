@@ -15,7 +15,7 @@ use File::Copy;
 my $verbose = exists $ENV{SMOKE_VERBOSE} ? $ENV{SMOKE_VERBOSE} : 0;
 my $showcfg = 0;
 
-use Test::More tests => 691;
+use Test::More tests => 694;
 
 use_ok 'Test::Smoke::Reporter';
 
@@ -1865,6 +1865,54 @@ __EOFAIL__
 
 #    diag Dumper $reporter->{_counters};
 #    diag $reporter->report;
+}
+
+{ # Test that 'Non-zero wait status' (signal kill) is parsed like 'Non-zero exit status'
+  # (GitHub issue #8 / abeltje#72)
+    create_config_sh( $config_sh, version => '5.11.2' );
+
+    my $reporter = Test::Smoke::Reporter->new(
+        ddir       => $findbin,
+        v          => $verbose,
+        outfile    => '',
+        showcfg    => $showcfg,
+        cfg        => \( my $bcfg = <<__EOCFG__ ),
+-Dcc=/opt/perl/ccache/gcc
+__EOCFG__
+    );
+    isa_ok( $reporter, 'Test::Smoke::Reporter' );
+
+    $reporter->read_parse( \(my $result = <<'EORESULTS') );
+Started smoke at 1258883807
+Smoking patch 20000
+
+Stopped smoke at 1258883808
+Started smoke at 1258883808
+
+Configuration: -Dusedevel -Dcc=/opt/perl/ccache/gcc
+------------------------------------------------------------------------------
+TSTENV = stdio  u=0.37  s=0.00  cu=3.34  cs=0.10  scripts=5  tests=13349
+
+    ../t/re/pat_advanced.t......................................FAILED
+        Non-zero wait status: 9
+    ../t/re/pat_advanced.t......................................FAILED
+        No plan found in TAP output
+
+Finished smoking 20000
+Stopped smoke at 1258883821
+EORESULTS
+
+    my $cfgarg = "-Dcc=/opt/perl/ccache/gcc";
+    is( $reporter->{_rpt}{$cfgarg}{summary}{N}{stdio}, "F",
+        "'Non-zero wait status' causes fail summary" );
+
+    my @f_lines = split /\n/, $reporter->failures;
+    is_deeply \@f_lines, [split /\n/, <<'__EOFAIL__'], "Non-zero wait status included in failures report";
+[stdio] 
+    ../t/re/pat_advanced.t......................................FAILED
+        Non-zero wait status: 9
+        No plan found in TAP output
+__EOFAIL__
 }
 
 { # Test the grepccmsg() feature

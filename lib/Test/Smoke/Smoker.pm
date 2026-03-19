@@ -825,7 +825,7 @@ sub _run_harness3_target {
             next;
         }
 
-        my( $exit_status ) = $line =~ /^  (Non-zero exit status: .+)/;
+        my( $exit_status ) = $line =~ /^  (Non-zero (?:exit|wait) status: .+)/;
         if ( $exit_status ) {
             $self->log_debug("[died test] $file");
             push @failed, "${file}FAILED\n";
@@ -980,7 +980,7 @@ sub _parse_harness3_output {
         my( $todo ) = $line =~ /$harness3_todo/x;
         my( $extra ) = $line =~ /$harness3_extra/x;
         my( $parse_error ) = $line =~ /^  Parse errors: (.+)/;
-        my( $exit_status ) = $line =~ /^  (Non-zero exit status: .+)/;
+        my( $exit_status ) = $line =~ /^  (Non-zero (?:exit|wait) status: .+)/;
 
         if ( $tname ) {
             my $r;
