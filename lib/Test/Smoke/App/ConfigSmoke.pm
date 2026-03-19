@@ -283,6 +283,12 @@ sub prompt {
 
     my $df_val = $self->default_for_option($option);
 
+    # Repeatable options (e.g. curlargs) have array-ref defaults.
+    # Convert to a space-joined string so they display and interact correctly
+    # in this scalar prompt; we convert back to an array ref on return.
+    my $df_is_array = ref($df_val) eq 'ARRAY';
+    $df_val = join(' ', @$df_val) if $df_is_array;
+
     if ($option->configtype eq 'prompt_yn') {
         $df_val =~ tr{01}{ny};
     }
@@ -290,7 +296,7 @@ sub prompt {
     unless ( defined $message ) {
         my $retval = defined $df_val ? $df_val : "undef";
         (caller 1)[3] or print "Got [$retval]\n";
-        return $df_val;
+        return $df_is_array ? [split(' ', $df_val // '')] : $df_val;
     }
 
     $message =~ s/\s+$//;
@@ -348,6 +354,7 @@ sub prompt {
 
     my $retval = length $input ? $input : $clear ? "" : $df_val;
     print "Got [@{[ defined($retval) ? $retval : 'undef' ]}]\n";
+    $retval = [split(' ', $retval // '')] if $df_is_array;
     return $retval;
 }
 

@@ -447,10 +447,12 @@ sub commit_sha {
 
 sub curlargs {
     return $opt->new(
-        name     => 'curlargs',
-        option   => '=s@',
-        default  => [ ],
-        helptext => "Extra switches to pass to curl (repeatable!)",
+        name       => 'curlargs',
+        option     => '=s@',
+        default    => [ ],
+        helptext   => "Extra switches to pass to curl (repeatable!)",
+        configtext => "Any extra switches to pass to curl? (space-separated)",
+        configord  => 4,
     );
 }
 
