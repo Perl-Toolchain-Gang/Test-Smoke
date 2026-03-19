@@ -1,0 +1,16 @@
+requires 'URI', '1.53';
+requires 'Capture::Tiny';
+requires 'System::Info', '0.050';
+requires 'Getopt::Long', '2.39';
+requires 'Path::Tiny';
+requires 'HTTP::Tiny';
+requires 'JSON';
+
+# Test dependencies
+requires 'Test::More', '0.88';
+requires 'Test::NoWarnings';
+requires 'Test::Fatal';
+requires 'HTTP::Daemon';
+requires 'HTTP::Message';
+requires 'Test::Pod';
+requires 'Test::Pod::Coverage';
