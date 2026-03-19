@@ -86,18 +86,36 @@ sub _fetch_archive {
 
     my $remote_archive = "$self->{snapurl}";
 
-    $self->{v} and print "LWP::Simple::mirror($remote_archive)";
-    my $result = LWP::Simple::mirror( $remote_archive, $local_archive );
-    if ( LWP::Simple::is_success( $result ) ) {
-        $self->{v} and print " OK\n";
-        return $local_archive;
-    } elsif ( LWP::Simple::is_error( $result ) ) {
-        $self->{v} and print " not OK\n";
-        return undef;
-    } else {
-        $self->{v} and print " skipped\n";
-        return $local_archive;
+    my $max_retries  = $self->{snap_retries}  || 3;
+    my $retry_delay  = $self->{snap_retry_delay} || 30;
+
+    for my $attempt ( 1 .. $max_retries ) {
+        $self->{v} and print "LWP::Simple::mirror($remote_archive) attempt $attempt/$max_retries";
+        my $result = LWP::Simple::mirror( $remote_archive, $local_archive );
+        if ( LWP::Simple::is_success( $result ) ) {
+            $self->{v} and print " OK\n";
+            return $local_archive;
+        } elsif ( LWP::Simple::is_error( $result ) ) {
+            # 4xx client errors are permanent — no retry
+            if ( $result >= 400 && $result < 500 ) {
+                $self->{v} and print " not OK ($result, permanent)\n";
+                return undef;
+            }
+            # 5xx server errors are transient — retry if attempts remain
+            if ( $attempt < $max_retries ) {
+                my $delay = $retry_delay * ( 2 ** ( $attempt - 1 ) );
+                $self->{v} and print " not OK ($result), retrying in ${delay}s\n";
+                sleep $delay;
+            } else {
+                $self->{v} and print " not OK ($result), giving up\n";
+                return undef;
+            }
+        } else {
+            $self->{v} and print " skipped\n";
+            return $local_archive;
+        }
     }
+    return undef;
 }
 
 
