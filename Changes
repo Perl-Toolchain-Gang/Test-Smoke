@@ -1,5 +1,7 @@
 1.85 2026-??-??
  - Fix renice invokation
+ - Copy also tshandlequeu.pl GH#23 thanks to report from Jim Keenan 
+ - Fix syncer sync in FTP.pm GH#21 thanks to report from Jim Keenan
 
 1.84 2025-03-12
  - Remove deprecated files:
