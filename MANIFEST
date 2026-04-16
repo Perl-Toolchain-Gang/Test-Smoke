@@ -50,7 +50,7 @@ lib/Test/Smoke/App/SyncTree.pm
 lib/Test/Smoke/App/W32Configure.pm
 lib/Test/Smoke/Archiver.pm
 lib/Test/Smoke/BuildCFG.pm
-lib/Test/Smoke/FAQ
+lib/Test/Smoke/FAQ.pod
 lib/Test/Smoke/FTPClient.pm
 lib/Test/Smoke/LogMixin.pm
 lib/Test/Smoke/Mailer.pm
