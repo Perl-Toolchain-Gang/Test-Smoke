@@ -27,3 +27,9 @@ jobs:
 
       - name: Run author tests
         run: mv Makefile.PL.bak Makefile.PL && prove -l xt/
+
+      - name: Make
+        run: AUTOMATED_TESTING=1 SMOKE_INSTDIR=./TS perl Makefile.PL
+
+      - name: Make test
+        run: make test
