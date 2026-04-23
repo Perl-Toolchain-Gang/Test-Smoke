@@ -31,5 +31,8 @@ jobs:
       - name: Make
         run: AUTOMATED_TESTING=1 SMOKE_INSTDIR=./TS perl Makefile.PL
 
+      - name: Remove .git directory to simulate a download from CPAN (or GitHub)
+        run: rm -rf .git
+
       - name: Make test
         run: make test
