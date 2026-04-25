@@ -157,6 +157,7 @@ t/logs/rtc-126010/.patch
 t/logs/rtc-126010/mktest.jsn
 t/logs/rtc-126010/mktest.out
 t/logs/rtc-126010/mktest.rpt
+t/logs/rtc-126010/smokecurrent.log
 t/logs/solaris.log
 t/logs/w32bcc32.log
 t/lpatches.t
