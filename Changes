@@ -1,6 +1,7 @@
 1.87 2026-04-??
  - Fix tests on Windows
  - Guard from qfile warning
+ - Do not dual test with stdio anymore
 
 1.86 2026-04-25
  - keep_alive => 0 to HTTP::Tiny to do not reuse connection

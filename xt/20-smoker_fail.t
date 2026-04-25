@@ -67,13 +67,13 @@ use_ok( 'Test::Smoke::Smoker' );
 
     ok( make_report( $ddir ), "Call Reporter" ) or diag( $@ );
     ok( my $report = get_report( $ddir ), "Got a report" );
-    like( $report, q@/^O O F F\s*$/m@, "Got F for -DDEBUGGING" );
+    like( $report, q@/^O F\s*$/m@, "Got F for -DDEBUGGING" );
     like( $report, q@/^Summary: FAIL\(F\)\s*$/m@, "Summary: FAIL(F)" );
     my $cfgopt = $w32args{w32cct} ? " $w32args{w32cct}" : "";
     $cfgopt = "\Q$cfgopt\E";
     like( $report, qq@/^
         Failures: \\s+ \\(common-args\\) \\s+ none \\s+
-        \\[stdio\\/perlio\\]\\s+
+        \\[perlio\\]\\s+
         -DDEBUGGING$cfgopt\\s+
         .*smoke\\/die\\.t\\.+FAILED(?:\\ \\?+)?\\s+
         (?:.+\\s)?
@@ -143,13 +143,13 @@ use_ok( 'Test::Smoke::Smoker' );
 
     ok( make_report( $ddir ), "Call Reporter" ) or diag( $@ );
     ok( my $report = get_report( $ddir ), "Got a report" );
-    like( $report, q@/^O O F F\s*$/m@, "Got F for -DDEBUGGING" );
+    like( $report, q@/^O F\s*$/m@, "Got F for -DDEBUGGING" );
     like( $report, q@/^Summary: FAIL\(F\)\s*$/m@, "Summary: FAIL(F)" );
     my $cfgopt = $w32args{w32cct} ? " $w32args{w32cct}" : "";
     $cfgopt = "\Q$cfgopt\E";
     like( $report, qq@/^
         Failures: \\s+ \\(common-args\\) \\s+ none \\s+
-        \\[stdio\\/perlio\\]\\s+
+        \\[perlio\\]\\s+
         -DDEBUGGING$cfgopt\\s+
         .*smoke\\/die\\.t\\.+FAILED(?:\\ \\?+)?\\s+
         (?:.+\\s)?

@@ -66,10 +66,10 @@ use_ok( 'Test::Smoke::Smoker' );
 
     ok( make_report( $ddir ), "Call 'tssendrpt.pl'" ) or diag( $@ );
     ok( my $report = get_report( $ddir ), "Got a report" );
-    like( $report, q@/^O O F F\s*$/m@, "Got F for -DDEBUGGING" );
+    like( $report, q@/^O F\s*$/m@, "Got F for -DDEBUGGING" );
     like( $report, q@/^Summary: FAIL\(F\)\s*$/m@, "Summary: FAIL(F)" );
     like( $report, q@/^
-        \[stdio\/perlio\]\s*
+        \[perlio\]\s*
         -DDEBUGGING.*\s+
         .*smoke\/minitest\.t\.+FAILED
     /xm@, "Failures report" );
@@ -135,10 +135,10 @@ use_ok( 'Test::Smoke::Smoker' );
 
     ok( make_report( $ddir ), "Call 'tssendrpt.pl'" ) or diag( $@ );
     ok( my $report = get_report( $ddir ), "Got a report" );
-    like( $report, q@/^O O F F\s*$/m@, "Got F for -DDEBUGGING" );
+    like( $report, q@/^O F\s*$/m@, "Got F for -DDEBUGGING" );
     like( $report, q@/^Summary: FAIL\(F\)\s*$/m@, "Summary: FAIL(F)" );
     like( $report, q@/^
-        \[stdio\/perlio\]\s*
+        \[perlio\]\s*
         -DDEBUGGING.*\s+
         .*smoke\/minitest\.t\.+FAILED\s+
         \d(?:[, -]\d+)*

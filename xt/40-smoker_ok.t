@@ -68,7 +68,7 @@ use_ok( 'Test::Smoke::Smoker' );
 
     ok( make_report( $ddir ), "Call Reporter" );
     ok( my $report = get_report( $ddir ), "Got a report" );
-    like( $report, q@/^O O O O\s*$/m@, "Got all O's for default config" );
+    like( $report, q@/^O O\s*$/m@, "Got all O's for default config" );
     like( $report, q@/^Summary: PASS\s*$/m@, "Summary: PASS" );
     unlike( $report, q@/^Failures:\s*$/m@, "No 'Failures:'" );
 
