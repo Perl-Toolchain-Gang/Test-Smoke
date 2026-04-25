@@ -24,3 +24,5 @@ sandbox/
 Makefile.PL.bak
 Test-Smoke-
 smokecurrent
+^local/
+

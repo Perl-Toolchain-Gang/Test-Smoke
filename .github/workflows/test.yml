@@ -1,38 +1,208 @@
-name: Perl Test Suite
+name: ci
 
 on:
   push:
     branches:
-      - main
+      - '*'
+    tags-ignore:
+      - '*'
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
+
+  #
+  # A basic and simple test run to gate the heavier matrix below.
+  #
+  simple-test:
+    name: "Simple TestRun"
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      PERL_USE_UNSAFE_INC: 0
+      AUTHOR_TESTING: 0
+      AUTOMATED_TESTING: 1
+      RELEASE_TESTING: 0
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Perl
-        uses: shogo82148/actions-setup-perl@v1
-        with:
-          perl-version: "latest"
-
+      - uses: actions/checkout@v6
+      - name: perl -V
+        run: perl -V
       - name: Install dependencies
-        run: mv Makefile.PL Makefile.PL.bak && cpanm --quiet --installdeps .
+        uses: perl-actions/install-with-cpm@v2
+        with:
+          sudo: true
+          global: true
+          cpanfile: "cpanfile"
+      - name: Makefile.PL
+        run: perl Makefile.PL
+      - name: make test
+        run: make test
 
-      - name: Run tests
-        run: prove -lr t/
+  perl-versions:
+    needs: [simple-test]
+    runs-on: ubuntu-latest
+    name: List Perl versions
+    outputs:
+      perl-versions: ${{ steps.action.outputs.perl-versions }}
+    steps:
+      - id: action
+        uses: perl-actions/perl-versions@v2.0
+        with:
+          since-perl: '5.14'
+          with-devel: true
 
+  linux:
+    name: "Perl ${{ matrix.perl-version }}"
+    needs: [simple-test, perl-versions]
+    runs-on: ubuntu-latest
+
+    env:
+      PERL_USE_UNSAFE_INC: 0
+      AUTHOR_TESTING: 1
+      AUTOMATED_TESTING: 1
+      RELEASE_TESTING: 1
+
+    strategy:
+      fail-fast: false
+      matrix:
+        perl-version: ${{ fromJson(needs.perl-versions.outputs.perl-versions) }}
+
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: perl -V
+        run: perl -V
+      - name: Install dependencies
+        uses: perl-actions/install-with-cpm@v2
+        with:
+          sudo: false
+          global: false
+          cpanfile: "cpanfile"
+      - name: Set PERL5LIB to local lib
+        run: echo "PERL5LIB=$(pwd)/local/lib/perl5" >> $GITHUB_ENV
+      - name: Makefile.PL
+        run: perl Makefile.PL
+      - name: make test
+        run: make test
+
+  macos:
+    name: macOS
+    needs: [simple-test]
+    runs-on: macos-latest
+
+    env:
+      PERL_USE_UNSAFE_INC: 0
+      AUTHOR_TESTING: 1
+      AUTOMATED_TESTING: 1
+      RELEASE_TESTING: 1
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: perl -V
+        run: perl -V
+      - name: Install dependencies
+        uses: perl-actions/install-with-cpm@v2
+        with:
+          sudo: true
+          global: true
+          cpanfile: "cpanfile"
+      - name: Makefile.PL
+        run: perl Makefile.PL
+      - name: make test
+        run: make test
+
+  windows:
+    name: Windows
+    needs: [simple-test]
+    runs-on: windows-latest
+
+    env:
+      PERL_USE_UNSAFE_INC: 0
+      AUTOMATED_TESTING: 1
+
+    steps:
+      - name: Set git to use LF
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v6
+      - name: Set up Perl
+        run: |
+          choco install strawberryperl
+          echo "C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: perl -V
+        run: perl -V
+      - name: Install Dependencies
+        run: cpanm --installdeps --cpanfile cpanfile --with-develop --notest .
+      - name: Makefile.PL
+        run: perl Makefile.PL
+      - name: gmake
+        run: gmake
+      - name: gmake test
+        run: gmake test
+
+  author-tests:
+    name: "Author tests"
+    needs: [simple-test]
+    runs-on: ubuntu-latest
+
+    env:
+      PERL_USE_UNSAFE_INC: 0
+      AUTHOR_TESTING: 1
+      AUTOMATED_TESTING: 1
+      RELEASE_TESTING: 1
+
+    container:
+      image: perldocker/perl-tester:latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install dependencies
+        uses: perl-actions/install-with-cpm@v2
+        with:
+          sudo: false
+          global: false
+          cpanfile: "cpanfile"
+      - name: Set PERL5LIB to local lib
+        run: echo "PERL5LIB=$(pwd)/local/lib/perl5" >> $GITHUB_ENV
+      - name: Makefile.PL
+        run: perl Makefile.PL
       - name: Run author tests
-        run: mv Makefile.PL.bak Makefile.PL && prove -l xt/
+        run: prove -l xt/*.t
 
-      - name: Make
-        run: AUTOMATED_TESTING=1 SMOKE_INSTDIR=./TS perl Makefile.PL
+  cpan-install:
+    name: "CPAN install simulation (no .git)"
+    needs: [simple-test]
+    runs-on: ubuntu-latest
 
+    env:
+      PERL_USE_UNSAFE_INC: 0
+      AUTOMATED_TESTING: 1
+      SMOKE_INSTDIR: ./TS
+
+    container:
+      image: perldocker/perl-tester:latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install dependencies
+        uses: perl-actions/install-with-cpm@v2
+        with:
+          sudo: false
+          global: false
+          cpanfile: "cpanfile"
+      - name: Set PERL5LIB to local lib
+        run: echo "PERL5LIB=$(pwd)/local/lib/perl5" >> $GITHUB_ENV
+      - name: Makefile.PL
+        run: perl Makefile.PL
       - name: Remove .git directory to simulate a download from CPAN (or GitHub)
         run: rm -rf .git
-
-      - name: Make test
+      - name: make test
         run: make test

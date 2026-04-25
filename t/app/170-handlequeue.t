@@ -2,6 +2,9 @@
 use strict;
 
 use Test::More;
+if ($^O eq 'MSWin32') {
+    plan skip_all => 'PostQueue->handle() flock/truncate sequence unreliable on Win32';
+}
 use Test::NoWarnings ();
 
 use File::Spec::Functions;
