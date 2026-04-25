@@ -1,7 +1,9 @@
 1.87 2026-04-??
+ - Do not dual test with PERLIO=stdio anymore, force PERLIO=perlio
+ - Replace raw print/warn with LogMixin in WriteSmokeScript.pm thanks to Nicolas
+ - Fix: HandleQueue gracefully handles missing qfile configuration thanks to Nicolas
  - Fix tests on Windows
- - Guard from qfile warning
- - Do not dual test with stdio anymore
+ - Modernize CI: multi-perl matrix, multi-OS, author tests
 
 1.86 2026-04-25
  - keep_alive => 0 to HTTP::Tiny to do not reuse connection
