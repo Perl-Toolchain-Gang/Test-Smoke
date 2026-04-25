@@ -526,11 +526,7 @@ sub make_test {
 
     # No use testing different io layers without PerlIO
     # just output 'stdio' for tssendrpt.pl
-    my @layers = ( ($config_args =~ /-Uuseperlio\b/) || $self->{defaultenv} )
-        ? qw( stdio )
-        : $self->{perlio_only}
-            ? qw( perlio )
-            : qw( stdio perlio );
+    my @layers = qw/ perlio /;
 
     my @locales;
     if ( !($config_args =~ /-Uuseperlio\b/ || $self->{defaultenv}) &&
