@@ -64,7 +64,7 @@ use_ok( 'Test::Smoke::Smoker' );
 
     $smoker->mark_out;
 
-    ok( make_report( $ddir ), "Call 'mkovz.pl'" ) or diag( $@ );
+    ok( make_report( $ddir ), "Call 'tssendrpt.pl'" ) or diag( $@ );
     ok( my $report = get_report( $ddir ), "Got a report" );
     like( $report, q@/^O O F F\s*$/m@, "Got F for -DDEBUGGING" );
     like( $report, q@/^Summary: FAIL\(F\)\s*$/m@, "Summary: FAIL(F)" );
@@ -133,7 +133,7 @@ use_ok( 'Test::Smoke::Smoker' );
 
     $smoker->mark_out;
 
-    ok( make_report( $ddir ), "Call 'mkovz.pl'" ) or diag( $@ );
+    ok( make_report( $ddir ), "Call 'tssendrpt.pl'" ) or diag( $@ );
     ok( my $report = get_report( $ddir ), "Got a report" );
     like( $report, q@/^O O F F\s*$/m@, "Got F for -DDEBUGGING" );
     like( $report, q@/^Summary: FAIL\(F\)\s*$/m@, "Summary: FAIL(F)" );
