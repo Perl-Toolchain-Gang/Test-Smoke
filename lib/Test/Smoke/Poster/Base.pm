@@ -84,6 +84,19 @@ sub agent_string {
     return "Test::Smoke/$Test::Smoke::VERSION ($class)";
 }
 
+=head2 $poster->_auth_header_value()
+
+Returns the C<Authorization> header value (C<Bearer $token>) if a
+C<smokedb_token> is configured; C<undef> otherwise.
+
+=cut
+
+sub _auth_header_value {
+    my $self = shift;
+    my $token = $self->{_smokedb_token};
+    return (defined($token) && length($token)) ? "Bearer $token" : undef;
+}
+
 =head2 $poster->get_json()
 
 =head3 Arguments
