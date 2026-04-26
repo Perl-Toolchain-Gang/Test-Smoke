@@ -62,6 +62,7 @@ sub _post_data {
 
     my $response = $self->curl->run(
         '-A' => $self->agent_string(),
+        ($self->_auth_header_value ? ('-H' => 'Authorization: ' . $self->_auth_header_value) : ()),
         '-d' => "\@$filename",
         ($self->ua_timeout    ? ('--max-time' => $self->ua_timeout) : ()),
         ($self->curl->verbose ? () : '--silent'),
@@ -103,6 +104,7 @@ sub _post_data_api {
 
     my $response = $self->curl->run(
         '-H' => 'Content-Type: application/json',
+        ($self->_auth_header_value ? ('-H' => 'Authorization: ' . $self->_auth_header_value) : ()),
         '-A' => $self->agent_string(),
         '-d' => "\@$filename",
         ($self->ua_timeout    ? ('--max-time' => $self->ua_timeout) : ()),
