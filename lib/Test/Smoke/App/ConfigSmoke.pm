@@ -288,7 +288,9 @@ sub prompt {
     }
 
     unless ( defined $message ) {
-        my $retval = defined $df_val ? $df_val : "undef";
+        my $retval = defined $df_val
+            ? (ref($df_val) eq 'ARRAY' ? join(' ', @$df_val) : $df_val)
+            : "undef";
         (caller 1)[3] or print "Got [$retval]\n";
         return $df_val;
     }
@@ -302,7 +304,9 @@ sub prompt {
 
     %ok_val = map { (lc $_ => 1) } @$alt if @$alt;
 
-    my $default = defined $df_val ? $df_val : 'undef';
+    my $default = defined $df_val
+        ? (ref($df_val) eq 'ARRAY' ? join(' ', @$df_val) : $df_val)
+        : 'undef';
     if ( @$alt && defined $df_val ) {
         $default = $df_val = $alt->[0] unless exists $ok_val{ lc $df_val };
     }
@@ -347,7 +351,7 @@ sub prompt {
     }
 
     my $retval = length $input ? $input : $clear ? "" : $df_val;
-    print "Got [@{[ defined($retval) ? $retval : 'undef' ]}]\n";
+    print "Got [@{[ !defined($retval) ? 'undef' : ref($retval) eq 'ARRAY' ? join(' ', @$retval) : $retval ]}]\n";
     return $retval;
 }
 
@@ -535,7 +539,7 @@ sub _sort_configkeys {
         qw( force_c_locale locale defaultenv perlio_only skip_tests ),
 
         # SmokeDB
-        qw( smokedb_url poster send_log send_out ua_timeout curlbin ),
+        qw( smokedb_url poster send_log send_out ua_timeout curlbin curlargs ),
 
         # Report related
         qw( mail mail_type mailbin mailxbin sendmailbin sendemailbin
