@@ -55,6 +55,9 @@ sub _post_data {
     $self->log_info("Posting to %s via %s.", $self->smokedb_url, $self->poster);
     $self->log_debug("Report data: %s", my $json = $self->get_json);
 
+    if (my $auth = $self->_auth_header_value) {
+        $self->ua->default_header('Authorization' => $auth);
+    }
     my $response = $self->ua->post(
         $self->smokedb_url,
         { json => $json }
@@ -90,9 +93,13 @@ sub _post_data_api {
 
     require HTTP::Request;
     require HTTP::Headers;
+    my @header_args = ('Content-Type', 'application/json');
+    if (my $auth = $self->_auth_header_value) {
+        push @header_args, 'Authorization', $auth;
+    }
     my $request = HTTP::Request->new(
         POST => $self->smokedb_url,
-        HTTP::Headers->new('Content-Type', 'application/json'),
+        HTTP::Headers->new(@header_args),
         $post_data,
     );
     my $response = $self->ua->request($request);

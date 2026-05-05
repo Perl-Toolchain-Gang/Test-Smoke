@@ -113,6 +113,7 @@ sub poster_config { # posting to CoreSmokeDB
         general_options => [
             ddir(),
             smokedb_url(),
+            smokedb_token(),
             jsnfile(),
             qfile(),
             report(0),
@@ -174,6 +175,7 @@ sub reposter_config {
             jsonreport(),
             max_reports(),
             smokedb_url(),
+            smokedb_token(),
         ],
         special_options => $pc_so,
     );
@@ -334,6 +336,7 @@ sub handlequeue_config {
         general_options => [
             adir(),
             smokedb_url(),
+            smokedb_token(),
             qfile(),
         ],
         special_options => $pc_so,
@@ -1225,6 +1228,20 @@ sub smokedb_url {
         configtext => "Where do I send the reports?",
         configdft  => sub { $default },
         configord  => 1,
+    );
+}
+
+sub smokedb_token {
+    return $opt->new(
+        name       => 'smokedb_token',
+        option     => '=s',
+        default    => undef,
+        allow      => [undef, '', qr/\S/],
+        helptext   => "An authentication token for CoreSmokeDB (sent as Authorization: Bearer header).",
+        configtext => "If you have an API token for CoreSmokeDB, enter it here.\n"
+                    . "\t(Leave empty for no authentication)",
+        configdft  => sub { '' },
+        configord  => 6,
     );
 }
 

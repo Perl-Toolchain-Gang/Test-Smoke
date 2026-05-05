@@ -45,6 +45,8 @@ sub config_smoke_db {
         $self->handle_option($option);
     }
 
+    $self->handle_option(Test::Smoke::App::Options->smokedb_token);
+
     for my $send_stuff (qw/send_log send_out/) {
         $self->handle_option(Test::Smoke::App::Options->$send_stuff);
     }

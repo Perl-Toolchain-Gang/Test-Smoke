@@ -50,14 +50,19 @@ sub _post_data {
     $self->log_info("Posting to %s via %s.", $self->smokedb_url, $self->poster);
     $self->log_debug("Report data: %s", my $json = $self->get_json);
 
+    my %headers = (
+        'Content-Type'   => 'application/x-www-form-urlencoded',
+    );
+    if (my $auth = $self->_auth_header_value) {
+        $headers{'Authorization'} = $auth;
+    }
+
     my $form_data = sprintf("json=%s", uri_escape($json));
+    $headers{'Content-Length'} = length($form_data);
     my $response = $self->ua->request(
         POST => $self->smokedb_url,
         {
-            headers => {
-                'Content-Type'   => 'application/x-www-form-urlencoded',
-                'Content-Length' => length($form_data),
-            },
+            headers => \%headers,
             content => $form_data,
         },
     );
@@ -94,14 +99,19 @@ sub _post_data_api {
     $self->log_info("Posting to %s via %s.", $self->smokedb_url, $self->poster);
     $self->log_debug("Report data: %s", my $json = $self->get_json);
 
+    my %headers = (
+        'Content-Type' => 'application/json',
+    );
+    if (my $auth = $self->_auth_header_value) {
+        $headers{'Authorization'} = $auth;
+    }
+
     my $post_data = sprintf(qq/{"report_data": %s}/, $json);
+    $headers{'Content-Length'} = length($post_data);
     my $response = $self->ua->request(
         POST => $self->smokedb_url,
         {
-            headers => {
-                'Content-Type'   => 'application/json',
-                'Content-Length' => length($post_data),
-            },
+            headers => \%headers,
             content => $post_data,
         },
     );

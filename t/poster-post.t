@@ -99,6 +99,15 @@ my $sockhost;
                     );
                     $c->send_response($response);
                 }
+                elsif ($r->method eq 'POST' && $r->uri->path eq '/api/report-auth') {
+                    my $auth = $r->header('Authorization') || '';
+                    my $response = HTTP::Response->new(
+                        RC_OK(), "OK",
+                        HTTP::Headers->new('Content-Type', 'application/json'),
+                        encode_json({id => 1, auth => $auth}),
+                    );
+                    $c->send_response($response);
+                }
                 else {
                     my $response = HTTP::Response->new(
                         RC_NOT_IMPLEMENTED(), 'NOT IMPLEMENTED',
@@ -363,6 +372,77 @@ SKIP: {
 POST failed: 501 NOT IMPLEMENTED ({"report_data": {"sysinfo":"$^O"}})
 Posted 654321 from queue: report_id = 42
 EOL
+
+    unlink $poster->json_filename;
+}
+
+# --- smokedb_token tests: verify Authorization header is sent ---
+
+SKIP: {
+    skip("Could not load HTTP::Tiny", 2) if ! has_module('HTTP::Tiny');
+    skip("HTTP::Tiny too old $HTTP::Tiny::VERSION (IPv6 support >= 0.042)", 2)
+        if    $sockhost eq '::'
+          and version->parse($HTTP::Tiny::VERSION) < version->parse("0.042");
+
+    (my $sdb_url = $url->clone)->path('/api/report-auth');
+    my $poster = Test::Smoke::Poster->new(
+        'HTTP::Tiny',
+        ddir          => $tempdir,
+        jsnfile       => $jsnfile,
+        smokedb_url   => $sdb_url->as_string,
+        smokedb_token => 'test-secret-token',
+        v             => $debug ? 2 : 0,
+    );
+
+    ok(write_json($poster->json_filename, $sysinfo), "write_json (HTTP::Tiny auth)");
+    my $response_body = eval {
+        my $res = $poster->ua->request(
+            POST => $poster->smokedb_url,
+            {
+                headers => {
+                    'Content-Type'  => 'application/json',
+                    'Authorization' => $poster->_auth_header_value,
+                },
+                content => '{"report_data": {"sysinfo":"test"}}',
+            },
+        );
+        JSON->new->utf8->decode($res->{content});
+    };
+    is(
+        $response_body->{auth},
+        'Bearer test-secret-token',
+        "HTTP::Tiny sends Authorization header"
+    ) or diag(explain($response_body));
+
+    unlink $poster->json_filename;
+}
+
+SKIP: {
+    skip("Could not load LWP::UserAgent", 2) if !has_module('LWP::UserAgent');
+
+    (my $sdb_url = $url->clone)->path('/api/report-auth');
+    my $poster = Test::Smoke::Poster->new(
+        'LWP::UserAgent',
+        ddir          => $tempdir,
+        jsnfile       => $jsnfile,
+        smokedb_url   => $sdb_url->as_string,
+        smokedb_token => 'lwp-test-token',
+        v             => $debug ? 2 : 0,
+    );
+
+    ok(write_json($poster->json_filename, $sysinfo), "write_json (LWP auth)");
+    $poster->ua->default_header('Authorization' => $poster->_auth_header_value);
+    my $response = $poster->ua->post(
+        $poster->smokedb_url,
+        'Content-Type' => 'application/json',
+        Content        => '{"report_data": {"sysinfo":"test"}}',
+    );
+    my $response_body = eval { JSON->new->utf8->decode($response->content) };
+    is(
+        $response_body->{auth},
+        'Bearer lwp-test-token',
+        "LWP::UserAgent sends Authorization header"
+    ) or diag(explain($response_body));
 
     unlink $poster->json_filename;
 }
