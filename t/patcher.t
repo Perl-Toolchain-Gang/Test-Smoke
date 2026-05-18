@@ -12,7 +12,7 @@ use TestLib;
 use Cwd 'abs_path';
 use File::Temp 'tempdir';
 
-use Test::More tests => 41;
+use Test::More tests => 43;
 BEGIN { use_ok( 'Test::Smoke::Patcher' ) };
 my $verbose = exists $ENV{SMOKE_VERBOSE} ? $ENV{SMOKE_VERBOSE} : 0;
 
@@ -242,6 +242,38 @@ EOF
     unless ( $ENV{SMOKE_DEBUG} ) {
         rmtree( $ddir, $verbose );
     }
+}
+
+SKIP: {
+    my $to_skip = 1;
+    skip "Cannot find a working 'patch' program.", $to_skip unless $patch;
+
+    # In Test::Smoke::Patcher, the assignment to %args_raw suggests that the
+    # following (invocant followed by string indicating type) is a legitimate
+    # way to construct a TS::Patcher object.  Should it be?  We add this test
+    # to extend branch coverage.
+
+    my $patcher = Test::Smoke::Patcher->new('single');
+    isa_ok( $patcher, 'Test::Smoke::Patcher' );
+}
+
+SKIP: {
+    my $to_skip = 1;
+    skip "Cannot find a working 'patch' program.", $to_skip unless $patch;
+
+    # In Test::Smoke::Patcher, the assignment to %args_raw suggests that the
+    # following (invocant followed by string indicating type followed by list
+    # of key-value pairs) is a legitimate way to construct a TS::Patcher
+    # object.  Should it be?  We add this test to extend branch coverage.
+
+    my $patcher = Test::Smoke::Patcher->new(
+        'single', (
+            v         => $verbose,
+            -ddir     => File::Spec->catdir($tmpdir, 'perl'),
+            -patchbin => $patch,
+        ),
+    );
+    isa_ok( $patcher, 'Test::Smoke::Patcher' );
 }
 
 END {
