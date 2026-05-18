@@ -207,7 +207,7 @@ sub config {
         return \%default;
     }
 
-    return undef unless exists $CONFIG{ "df_$key" };
+    return unless exists $CONFIG{ "df_$key" };
 
     $CONFIG{ "df_$key" } = shift if @_;
 

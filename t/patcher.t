@@ -12,7 +12,7 @@ use TestLib;
 use Cwd 'abs_path';
 use File::Temp 'tempdir';
 
-use Test::More tests => 41;
+use Test::More tests => 44;
 BEGIN { use_ok( 'Test::Smoke::Patcher' ) };
 my $verbose = exists $ENV{SMOKE_VERBOSE} ? $ENV{SMOKE_VERBOSE} : 0;
 
@@ -242,6 +242,26 @@ EOF
     unless ( $ENV{SMOKE_DEBUG} ) {
         rmtree( $ddir, $verbose );
     }
+}
+
+{
+    ok(! defined Test::Smoke::Patcher->config( foo => 'bar' ),
+        "Detected bad argument to Patcher->config()");
+}
+
+{
+    my $key = 'v';
+    my $value = 1;
+    my $expected_value = 1;
+    my $df_key = "df_$key";
+    my $got = Test::Smoke::Patcher->config( $key => $value );
+
+    my $tdir = 't';
+    my $fs_tdir = File::Spec->rel2abs( $tdir );
+    my $patcher = Test::Smoke::Patcher->new( single => { ddir  => $tdir } );
+    isa_ok( $patcher, 'Test::Smoke::Patcher' );
+    is($patcher->{v}, $expected_value,
+        "Got expected value when argument is set via config()");
 }
 
 END {
