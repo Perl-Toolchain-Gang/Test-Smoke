@@ -20,7 +20,7 @@ use Test::Smoke::Util qw( whereis clean_filename );
 
 =head2 Test::Smoke::Syncer::Snapshot->new( %args )
 
-This crates the new object. Keys for C<%args>:
+This creates the new object. Keys for C<%args>:
 
   * ddir:      destination directory ( ./perl-current )
   * snapurl:   the server to get the download from
@@ -105,7 +105,7 @@ sub _fetch_archive {
 
 C<_extract_archive()> checks the B<tar> attribute to find out how to
 extract the archive. This could be an external command or the
-B<Archive::Tar>/B<Comperss::Zlib> modules.
+B<Archive::Tar>/B<Compress::Zlib> modules.
 
 =cut
 
@@ -157,7 +157,7 @@ sub _extract_archive {
 
 C<_extract_with_Archive_Tar()> uses the B<Archive::Tar> and
 B<Compress::Zlib> modules to extract the archive.
-(This tested verry slow on my Linux box!)
+(This tested very slow on my Linux box!)
 
 =cut
 
@@ -236,7 +236,7 @@ sub _extract_with_external {
 
 [This is B<not> a method]
 
-C<__get_directory_names()> retruns all directory names from
+C<__get_directory_names()> returns all directory names from
 C<< $dir || cwd() >>. It does not look at symlinks (there should
 not be any in the perl source-tree).
 

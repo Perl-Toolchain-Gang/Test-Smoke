@@ -34,7 +34,7 @@ build-configurations.
 
 =head2 $smoker->run();
 
-reimplemention of the old C<Test::Smoke::run_smoke()>.
+reimplementation of the old C<Test::Smoke::run_smoke()>.
 
 =cut
 
