@@ -24,6 +24,5 @@ sandbox/
 \.github
 Makefile.PL.bak
 Test-Smoke-
-smokecurrent
 ^local/
-
+data/configs/smokecurrent*
