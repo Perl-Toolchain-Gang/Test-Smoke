@@ -24,6 +24,7 @@ use_ok( 'Test::Smoke::Mailer' );
 use Test::Smoke::Util 'parse_report_Config';
 
 SKIP: {
+    note("Mail::Sendmail with PASS config");
     my $mhowto = 'Mail::Sendmail';
     local $@;
     my $load_error = do {
@@ -64,6 +65,7 @@ SKIP: {
 }
 
 SKIP: {
+    note("Mail::Sendmail with FAIL config");
     my $mhowto = 'Mail::Sendmail';
     local $@;
     my $load_error = do {
@@ -114,6 +116,7 @@ SKIP: {
 }
 
 SKIP: {
+    note("mail with PASS config");
     my $mhowto = 'mail';
     my $bin = whereis( $mhowto ) or skip "No '$mhowto' found", 5;
     write_report( $eg_config ) or skip "Cannot write report", 5;
@@ -141,6 +144,7 @@ SKIP: {
 }
 
 SKIP: {
+    note("mailx with PASS config");
     my $mhowto = 'mailx';
     my $bin = whereis( $mhowto ) or skip "No '$mhowto' found", 5;
     write_report( $eg_config ) or skip "Cannot write report", 5;
@@ -168,6 +172,7 @@ SKIP: {
 }
 
 SKIP: {
+    note("sendmail with PASS config");
     my $mhowto = 'sendmail';
     $^O eq 'VMS' and skip "Do not try '$mhowto' on $^O", 5;
     local $ENV{PATH} = "$ENV{PATH}:/usr/sbin";
