@@ -162,6 +162,7 @@ t/logs/solaris.log
 t/logs/w32bcc32.log
 t/lpatches.t
 t/mailer.t
+t/mailer-base.t
 t/multilocale.out
 t/parse_report.t
 t/patcher.t
