@@ -99,7 +99,7 @@ sub get_file {
         @content = <MYFILE>;
         close MYFILE;
     } else {
-        Carp::carp("(@{[cwd]})$filename: $!");
+        carp("(@{[cwd]})$filename: $!");
     }
 
     return wantarray ? @content : join "", @content;
@@ -199,8 +199,7 @@ sub do_unzip {
     if ( $unzip eq 'Compress::Zlib' ) {
         require Compress::Zlib;
         my $unzipper = Compress::Zlib::gzopen( $uzfile, 'rb' ) or do {
-            require Carp;
-            Carp::carp( "Can't open '$uzfile': $Compress::Zlib::gzerrno" );
+            carp( "Can't open '$uzfile': $Compress::Zlib::gzerrno" );
             return undef;
         };
 
@@ -208,8 +207,7 @@ sub do_unzip {
         $content .= $buffer while $unzipper->gzread( $buffer ) > 0;
 
         unless ( $Compress::Zlib::gzerrno == Compress::Zlib::Z_STREAM_END() ) {
-            require Carp;
-            Carp::carp( "Error reading '$uzfile': $Compress::Zlib::gzerrno" );
+            carp( "Error reading '$uzfile': $Compress::Zlib::gzerrno" );
         }
 
         $unzipper->gzclose;

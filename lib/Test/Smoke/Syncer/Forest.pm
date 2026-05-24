@@ -4,6 +4,7 @@ use strict;
 
 our $VERSION = '0.029';
 
+use Carp;
 use base 'Test::Smoke::Syncer::Base';
 
 =head1 Test::Smoke::Syncer::Forest
@@ -62,16 +63,13 @@ sub sync {
         $self->{v} and print "Run 'regen_headers.pl' ($self->{fdir})\n";
         my $cwd = Cwd::cwd();
         chdir $self->{fdir} or do {
-            require Carp;
-            Carp::croak( "Cannot chdir($self->{fdir}) in forest: $!" );
+            croak( "Cannot chdir($self->{fdir}) in forest: $!" );
         };
         system( "$^X regen_headers.pl" ) == 0 or do {
-            require Carp;
-            Carp::carp( "Error while running 'regen_headers.pl'" );
+            carp( "Error while running 'regen_headers.pl'" );
         };
         chdir $cwd or do {
-            require Carp;
-            Carp::croak( "Cannot chdir($cwd) back: $!" );
+            croak( "Cannot chdir($cwd) back: $!" );
         };
     }
 

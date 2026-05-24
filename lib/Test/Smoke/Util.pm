@@ -21,6 +21,7 @@ our @EXPORT_OK = qw(
     &set_vms_rooted_logical
 );
 
+use Carp;
 use Text::ParseWords;
 use File::Spec::Functions;
 use Encode qw ( decode );
@@ -725,27 +726,23 @@ sub set_local_patch {
     close PLOUT or return 0;
 
     if ( not $done ) {
-        require Carp;
-        Carp::carp("Failed to update patchlevel.h. Content not as expected?");
+        carp("Failed to update patchlevel.h. Content not as expected?");
         return 0;
     }
 
     -e $plb and 1 while unlink $plb;
     my $errno = "$!";
     if ( -e $plb ) {
-        require Carp;
-        Carp::carp( "Could not unlink $plb : $errno" );
+        carp( "Could not unlink $plb : $errno" );
         return 0;
     }
 
     unless ( rename $plh, $plb ) {
-        require Carp;
-        Carp::carp( "Could not rename $plh to $plb : $!" );
+        carp( "Could not rename $plh to $plb : $!" );
         return 0;
     }
     unless ( rename $pln, $plh ) {
-        require Carp;
-        Carp::carp( "Could not rename '$pln' to '$plh' : $!" );
+        carp( "Could not rename '$pln' to '$plh' : $!" );
         return 0;
     }
 
@@ -1090,8 +1087,7 @@ sub get_ncpu {
         };
 
         $cpus = "";
-        require Carp;
-        Carp::carp( "get_ncpu: unknown operationg system" );
+        carp( "get_ncpu: unknown operationg system" );
     }
 
     return $cpus ? sprintf( "%s cpu%s", $cpus, $cpus ne "1" ? 's' : '' ) : "";
@@ -1311,8 +1307,7 @@ sub vms_whereis {
     # Check SYMBOLS
     eval { require VMS::DCLsym };
     if ( $@ ) {
-        require Carp;
-        Carp::carp( "Oops, cannot load VMS::DCLsym: $@" );
+        carp( "Oops, cannot load VMS::DCLsym: $@" );
     } else {
         my $syms = VMS::DCLsym->new;
         return $prog if scalar $syms->getsym( $prog );

@@ -4,6 +4,7 @@ use strict;
 
 our $VERSION = '0.054';
 
+use Carp;
 require File::Path;
 require Test::Smoke;
 use Cwd;
@@ -204,8 +205,7 @@ sub _read {
             $vmsg = "from $nameorref";
             $self->{_outfile} = read_logfile($nameorref, $self->{v});
             defined($self->{_outfile}) or do {
-                require Carp;
-                Carp::carp( "Cannot read smokeresults ($nameorref): $!" );
+                carp( "Cannot read smokeresults ($nameorref): $!" );
                 $vmsg = "did fail";
             };
         } else { # Allow intentional default_buildcfg()
@@ -798,14 +798,12 @@ sub write_to_file {
     $self->log_info("Writing report to '%s'", $name);
     local *RPT;
     open RPT, "> $name" or do {
-        require Carp;
-        Carp::carp( "Error creating '$name': $!" );
+        carp( "Error creating '$name': $!" );
         return;
     };
     print RPT $self->report;
     close RPT or do {
-        require Carp;
-        Carp::carp( "Error writing to '$name': $!" );
+        carp( "Error writing to '$name': $!" );
         return;
     };
     $self->log_info("'%s' written OK", $name);

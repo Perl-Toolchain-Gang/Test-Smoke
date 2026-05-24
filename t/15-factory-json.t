@@ -19,7 +19,7 @@ use Test::Smoke::Util::LoadAJSON ();
 # Preload modules before we mess with @INC
 require Data::Dumper;  # Test::More::explain()
 require Scalar::Util;  # Test::More::isa_ok()
-require Carp;          # our JSON.pm might need it;
+use Carp;
 use Test::More;
 use Test::NoWarnings ();
 

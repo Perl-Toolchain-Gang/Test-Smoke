@@ -4,6 +4,7 @@ use strict;
 
 our $VERSION = '0.001';
 
+use Carp;
 use Test::Smoke::Util qw( parse_report_Config );
 
 =head1 NAME
@@ -46,8 +47,7 @@ sub fetch_report {
         $self->{body} = do { local $/; <REPORT> };
         close REPORT;
     } else {
-        require Carp;
-        Carp::croak( "Cannot read '$self->{file}': $!" );
+        croak( "Cannot read '$self->{file}': $!" );
     }
 
     my @config = parse_report_Config( $self->{body} );

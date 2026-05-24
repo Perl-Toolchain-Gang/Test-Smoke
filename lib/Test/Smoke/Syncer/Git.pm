@@ -13,6 +13,7 @@ This handles syncing with git repositories.
 =cut
 
 
+use Carp;
 use Cwd;
 use File::Spec::Functions;
 use Test::Smoke::LogMixin;
@@ -76,7 +77,7 @@ sub _sync_full_checkout {
         command => $self->{gitbin},
         verbose => $self->verbose,
     );
-    use Carp;
+
     my $cwd = cwd();
     # Handle the proxy-clone
     if ( ! -d $self->{gitdir} || ! -d catdir($self->{gitdir}, '.git') ) {
@@ -176,7 +177,7 @@ sub _sync_bare {
         command => $self->{gitbin},
         verbose => $self->verbose,
     );
-    use Carp;
+
     my $cwd = cwd();
 
     # Clean up if we weren't using a "bare" repo previously

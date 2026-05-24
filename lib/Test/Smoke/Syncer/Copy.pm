@@ -1,6 +1,7 @@
 package Test::Smoke::Syncer::Copy;
 use warnings;
 use strict;
+use Carp;
 use Cwd;
 
 our $VERSION = '0.029';
@@ -38,22 +39,19 @@ sub sync {
     my $self = shift;
 
     $self->{cdir} eq $self->{ddir} and do {
-        require Carp;
-        Carp::croak( "Sourcetree cannot be copied onto it self!" );
+        croak( "Sourcetree cannot be copied onto it self!" );
     };
 
     $self->pre_sync;
     require Test::Smoke::SourceTree;
     my $cwd = getcwd;
     if (! chdir $self->{cdir}) {
-        require Carp;
-        Carp::croak( "[copy] Cannot chdir($self->{cdir}): $!" );
+        croak( "[copy] Cannot chdir($self->{cdir}): $!" );
     };
     $self->make_dot_patch if (! -e ".patch");
 
     if (! chdir $cwd) {
-        require Carp;
-        Carp::croak( "[copy] Cannot chdir($cwd): $!" );
+        croak( "[copy] Cannot chdir($cwd): $!" );
     };
 
     my $tree = Test::Smoke::SourceTree->new($self->{cdir}, $self->verbose);
