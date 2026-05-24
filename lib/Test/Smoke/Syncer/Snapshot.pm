@@ -14,6 +14,7 @@ user-calls on this.
 
 =cut
 
+use Carp;
 use Cwd;
 use File::Path;
 use Test::Smoke::Util qw( whereis clean_filename );
@@ -72,8 +73,7 @@ sub _fetch_archive {
     require LWP::Simple;
 
     unless ( $self->{snapurl} ) {
-        require Carp;
-        Carp::carp( "No URL specified for $self->{snapurl}" );
+        carp( "No URL specified for $self->{snapurl}" );
         return undef;
     }
 
@@ -113,8 +113,7 @@ sub _extract_archive {
     my $self = shift;
 
     unless ( $self->{archive} && -f $self->{archive} ) {
-        require Carp;
-        Carp::carp( "No archive to be extracted!" );
+        carp( "No archive to be extracted!" );
         return undef;
     }
 
@@ -126,8 +125,7 @@ sub _extract_archive {
     my $ddir = $^O eq 'VMS' ? $self->{vms_ddir} : $self->{ddir};
     my $extract_base = File::Spec->catdir( $ddir, File::Spec->updir );
     chdir $extract_base or do {
-        require Carp;
-        Carp::croak( "Can't chdir '$extract_base': $!" );
+        croak( "Can't chdir '$extract_base': $!" );
     };
 
     my $archive_base;
@@ -146,8 +144,7 @@ sub _extract_archive {
     $self->_relocate_tree( $archive_base );
 
     chdir $cwd or do {
-        require Carp;
-        Carp::croak( "Can't chdir($extract_base) back: $!" );
+        croak( "Can't chdir($extract_base) back: $!" );
     };
 
     1 while unlink $self->{archive};
@@ -167,16 +164,14 @@ sub _extract_with_Archive_Tar {
     require Archive::Tar;
 
     my $archive = Archive::Tar->new() or do {
-        require Carp;
-        Carp::carp( "Can't Archive::Tar->new: " . $Archive::Tar::error );
+        carp( "Can't Archive::Tar->new: " . $Archive::Tar::error );
         return undef;
     };
 
     $self->{v} and printf "Extracting '$self->{archive}' (%s) ", cwd();
     $archive->read( $self->{archive}, 1 );
     $Archive::Tar::error and do {
-        require Carp;
-        Carp::carp("Error reading '$self->{archive}': ".$Archive::Tar::error);
+        carp("Error reading '$self->{archive}': ".$Archive::Tar::error);
         return undef;
     };
     my @files = $archive->list_files;
@@ -208,8 +203,7 @@ sub _extract_with_external {
         $self->{v} and print "$command ";
         if ( system $command ) {
             my $error = $? >> 8;
-            require Carp;
-            Carp::carp( "Error in command: $error" );
+            carp( "Error in command: $error" );
             return undef;
         };
         $self->{v} and print "OK\n";

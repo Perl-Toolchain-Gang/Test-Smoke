@@ -16,6 +16,7 @@ use Test::Smoke::Smoker;
 use Test::Smoke::SourceTree qw( :mani_const );
 use Test::Smoke::Util qw( get_patch skip_config
                           get_local_patches set_local_patch );
+use Carp;
 use Config;
 
 =head1 NAME
@@ -208,8 +209,7 @@ sub run_smoke {
     $smoker->mark_out;
 
     close LOG or do {
-        require Carp;
-        Carp::carp "Error on closing logfile: $!";
+        carp "Error on closing logfile: $!";
    };
 }
 

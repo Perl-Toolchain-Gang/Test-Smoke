@@ -4,6 +4,7 @@ use strict;
 
 our $VERSION = '0.047';
 
+use Carp;
 use Config;
 use Cwd;
 use File::Spec::Functions qw( :DEFAULT abs2rel rel2abs );
@@ -145,8 +146,7 @@ sub new {
     my $fh = shift;
 
     unless ( ref $fh eq 'GLOB' ) {
-        require Carp;
-        Carp::croak(sprintf "Usage: %s->new( \\*FH, %%args )", __PACKAGE__);
+        croak(sprintf "Usage: %s->new( \\*FH, %%args )", __PACKAGE__);
     }
 
     my %args_raw = @_ ? UNIVERSAL::isa( $_[0], 'HASH' ) ? %{ $_[0] } : @_ : ();
@@ -731,8 +731,7 @@ sub _run_harness_target {
 
     close $tst or do {
         my $error = $! || ( $? >> 8);
-        require Carp;
-        Carp::carp("\nerror while running harness target '$target': $error");
+        carp("\nerror while running harness target '$target': $error");
     };
 
     $self->ttylog( "\n", join( "", @failed ), "\n" );
@@ -839,8 +838,7 @@ sub _run_harness3_target {
 
     close $tst or do {
         my $error = $! || ( $? >> 8);
-        require Carp;
-        Carp::carp("\nerror while running harness target '$target': $error" );
+        carp("\nerror while running harness target '$target': $error" );
     };
 
     $self->ttylog( "\n", join( "", @failed ), "\n" );
@@ -850,8 +848,7 @@ sub _run_harness3_target {
 sub _run_TEST_target {
     my( $self, $target, $extend ) = @_;
     !$target and do {
-        require Carp;
-        Carp::confess("No target in _run_TEST_target");
+        confess("No target in _run_TEST_target");
     };
 
     my @nok;
@@ -1127,8 +1124,7 @@ sub set_skip_tests {
         close SKIPTESTS;
         @libext and $self->change_manifest( \@libext, $unset );
     } else {
-        require Carp;
-        Carp::carp("Cannot open($self->{skip_tests}): $!");
+        carp("Cannot open($self->{skip_tests}): $!");
     }
 }
 
@@ -1156,8 +1152,7 @@ sub change_manifest {
         chmod 0755, $mani_org;
         rename $mani_org, $mani_new or do {
             chmod $perms, $mani_org;
-            require Carp;
-            Carp::carp("No skip of lib or ext tests [rename($mani_new): $!]");
+            carp("No skip of lib or ext tests [rename($mani_new): $!]");
             return;
         };
         local( *MANIO, *MANIN );
@@ -1282,8 +1277,7 @@ sub _make_fork {
         $ok = open TST, $cmd or $err = $!;
     }
     $ok or do {
-        require Carp;
-        Carp::carp("Cannot fork '$cmd': $err");
+        carp("Cannot fork '$cmd': $err");
         return 0;
     };
     select ((select (*TST), $| = 1)[0]);

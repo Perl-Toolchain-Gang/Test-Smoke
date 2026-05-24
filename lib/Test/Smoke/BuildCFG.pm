@@ -3,6 +3,7 @@ use strict;
 
 our $VERSION = '0.011';
 
+use Carp;
 use Cwd;
 use File::Basename qw( dirname );
 use File::Spec;
@@ -200,8 +201,7 @@ sub _read {
                 close BUILDCFG;
                 $vmsg = $nameorref;
             } else {
-                require Carp;
-                Carp::carp("Cannot read buildconfigurations ($nameorref): $!");
+                    carp("Cannot read buildconfigurations ($nameorref): $!");
                 $self->{_buildcfg} = $self->default_buildcfg();
                 $vmsg = "internal content";
             }
@@ -264,8 +264,7 @@ sub _parse {
                 delete $opts{ $line };
             }
             if ( @targets > 1 ) {
-                require Carp;
-                Carp::carp( "Multiple policy lines in one section:\n\t",
+                carp( "Multiple policy lines in one section:\n\t",
                             join( "\n\t", @targets ),
                             "\nWill use /$targets[0]/\n" );
             }

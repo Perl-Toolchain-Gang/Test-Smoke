@@ -3,6 +3,7 @@ use strict;
 
 our $VERSION = '0.004';
 
+use Carp;
 use File::Spec;
 use Test::Smoke::LogMixin;
 
@@ -93,8 +94,7 @@ sub _do_subst {
         unless ( $policy =~ s{^(\s*ccflags=.*?)$target}
                              {$1 . join " ",
                                    grep $_ && length $_ => @$values}meg ) {
-            require Carp;
-            Carp::carp( "Policy target '$target' failed to match" );
+            carp( "Policy target '$target' failed to match" );
         }
     }
     $self->{_new_policy} = $policy;
@@ -115,12 +115,10 @@ sub write {
     if ( open POL, "> $p_name" ) {
         print POL $self->{_new_policy};
         close POL or do {
-            require Carp;
-            Carp::carp( "Error rewriting '$p_name': $!" );
+            carp( "Error rewriting '$p_name': $!" );
         };
     } else {
-        require Carp;
-        Carp::carp( "Unable to rewrite '$p_name': $!" );
+        carp( "Unable to rewrite '$p_name': $!" );
     }
 }
 

@@ -1,6 +1,7 @@
 package Test::Smoke::FTPClient;
 use strict;
 
+use Carp;
 use Net::FTP;
 use Cwd;
 use File::Path;
@@ -69,12 +70,10 @@ sub  new {
     my $port = shift;
 
     unless ( $server ) {
-        require Carp;
-        Carp::croak( "Usage: Test::Smoke::FTPClient->new( \$server, \$port )" );
+        croak( "Usage: Test::Smoke::FTPClient->new( \$server, \$port )" );
     };
     unless ( $port ) {
-        require Carp;
-        Carp::croak( "Usage: Test::Smoke::FTPClient->new( \$server, \$port )" );
+        croak( "Usage: Test::Smoke::FTPClient->new( \$server, \$port )" );
     };
 
 

@@ -4,6 +4,7 @@ use strict;
 our $VERSION = '0.012';
 
 use base 'Exporter';
+use Carp;
 use File::Spec;
 use Cwd;
 
@@ -155,8 +156,7 @@ sub new {
     my $type = lc shift;
     unless ( $type && exists $CONFIG{valid_type}->{ $type } ) {
         defined $type or $type = 'undef';
-        require Carp;
-        Carp::croak( "Invalid Patcher-type: '$type'" );
+        croak( "Invalid Patcher-type: '$type'" );
     }
 
     my %args_raw = @_ ? UNIVERSAL::isa( $_[0], 'HASH' ) ? %{ $_[0] } : @_ : ();
@@ -266,13 +266,11 @@ sub perl_regen_headers {
                 $self->{v} and print;
             }
             close RUN_REGEN or do {
-                require Carp;
-                Carp::carp( "Error while running [$regen]" );
+                carp( "Error while running [$regen]" );
                 return;
             };
         } else {
-            require Carp;
-            Carp::carp( "Could not fork [$regen]" );
+            carp( "Could not fork [$regen]" );
             return;
         }
         chdir $cwd;
@@ -312,8 +310,7 @@ sub patch_single {
 
         $self->{pfinfo} = $full_name;
         open PATCH, "< $full_name" or do {
-            require Carp;
-            Carp::croak( "Cannot open '$full_name': $!" );
+            croak( "Cannot open '$full_name': $!" );
         };
         $content = do { local $/; <PATCH> };
         close PATCH;
@@ -354,8 +351,7 @@ sub patch_multi {
             ? $pfile : File::Spec->rel2abs( $pfile, $self->{pdir} );
         $self->{pfinfo} = $full_name;
         open PATCHES, "< $full_name" or do {
-            require Carp;
-            Carp::croak( "Cannot open '$self->{pfile}': $!" );
+            croak( "Cannot open '$self->{pfile}': $!" );
         };
         chomp( @patches = <PATCHES> );
         close PATCHES;
@@ -375,8 +371,7 @@ sub patch_multi {
         $descr = $descr ? $descr . " ($filename)" : $filename;
         eval { $self->patch_single( $filename, $switches, $descr ) };
         if ( $@ ) {
-            require Carp;
-            Carp::carp( "[$filename] $@" );
+            carp( "[$filename] $@" );
             $ok = 0;
         }
     }
@@ -422,8 +417,7 @@ sub call_patch {
 
     my $cwd = cwd();
     chdir $self->{pdir} or do {
-        require Carp;
-        Carp::croak( "Cannot chdir($self->{pdir}): $!" );
+        croak( "Cannot chdir($self->{pdir}): $!" );
     };
 
     # patch is verbose enough if $self->{v} == 1
@@ -434,12 +428,10 @@ sub call_patch {
         binmode PATCHBIN;
         print PATCHBIN $$ref_to_content;
         close PATCHBIN or do {
-            require Carp;
-            Carp::croak( "Error while patching from '$self->{pfinfo}': $!" );
+            croak( "Error while patching from '$self->{pfinfo}': $!" );
         };
     } else {
-        require Carp;
-        Carp::croak( "Cannot fork ($self->{patchbin}): $!" );
+        croak( "Cannot fork ($self->{patchbin}): $!" );
     }
 
     # Add a line to patchlevel.h if $descr
@@ -449,8 +441,7 @@ sub call_patch {
     }
 
     chdir $cwd or do {
-        require Carp;
-        Carp::croak( "Cannot chdir($cwd) back: $!" );
+        croak( "Cannot chdir($cwd) back: $!" );
     };
 }
 

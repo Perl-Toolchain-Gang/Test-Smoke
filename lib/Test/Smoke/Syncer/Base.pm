@@ -48,7 +48,7 @@ Abstract method.
 sub sync {
     my $self = shift;
     my $class = ref $self || $self;
-    Carp::croak("Should have been implemented by '$class'");
+    croak("Should have been implemented by '$class'");
 }
 
 =head2 $syncer->_clear_souce_tree( [$tree_dir] )

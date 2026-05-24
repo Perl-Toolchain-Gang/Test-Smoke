@@ -14,6 +14,7 @@ user-calls on this.
 
 =cut
 
+use Carp;
 use Cwd;
 use Test::Smoke::LogMixin;
 use Test::Smoke::Util::Execute;
@@ -69,8 +70,7 @@ sub sync {
     );
     my $cwd = cwd();
     if (! chdir $self->{ddir}) {
-        require Carp;
-        Carp::croak( "[rsync] Cannot chdir($self->{ddir}): $!" );
+        croak( "[rsync] Cannot chdir($self->{ddir}): $!" );
     };
     my $rsyncout = $rsync->run(
         shellwords($self->{opts}),
@@ -82,8 +82,7 @@ sub sync {
     $self->log_debug($rsyncout);
 
     if (my $err = $rsync->exitcode ) {
-        require Carp;
-        Carp::carp( "Problem during rsync ($err)" );
+        carp( "Problem during rsync ($err)" );
     }
 
     if ($self->is_git_dir()) {
