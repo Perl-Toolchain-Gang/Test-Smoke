@@ -34,7 +34,7 @@ build-configurations.
 
 =head2 $smoker->run();
 
-reimplemention of the old C<Test::Smoke::run_smoke()>.
+Run the full smoke cycle for all build configurations.
 
 =cut
 

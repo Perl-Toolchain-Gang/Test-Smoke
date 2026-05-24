@@ -165,7 +165,7 @@ sync.
 
 =item B<tsrunsmoke.pl>
 
-Small wrapper around B<Test::Smoke::run_smoke()> that can use the
+Small wrapper around B<Test::Smoke::App::RunSmoke> that can use the
 settings from the smoke-configuration file. It runs the smoke cycle
 for all configurations and is a replacement for the now removed
 B<mktest.pl>.
