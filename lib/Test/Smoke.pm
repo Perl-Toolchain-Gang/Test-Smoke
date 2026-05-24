@@ -5,18 +5,15 @@ use vars qw($conf);
 our $VERSION  = "1.87";
 
 use base 'Exporter';
-our @EXPORT  = qw( $conf &read_config &run_smoke );
+our @EXPORT  = qw( $conf &read_config );
 
 my $ConfigError;
 
 use File::Spec;
-use Test::Smoke::Policy;
 use Test::Smoke::BuildCFG;
-use Test::Smoke::Smoker;
 use Test::Smoke::SourceTree qw( :mani_const );
-use Test::Smoke::Util qw( get_patch skip_config
+use Test::Smoke::Util qw( skip_config
                           get_local_patches set_local_patch );
-use Config;
 
 =head1 NAME
 
@@ -37,6 +34,11 @@ Test::Smoke - The Perl core test smoke suite
 If you are looking to get started, start at the B<README>!
 
 C<Test::Smoke> exports C<$conf> and C<read_config()> by default.
+
+B<Note:> The C<run_smoke()> function that was previously exported from this
+module has been removed. It was superseded by
+L<Test::Smoke::App::RunSmoke>, which provides the same functionality through
+an OO interface. See L<Test::Smoke::App::RunSmoke/run()>.
 
 =head2 Test::Smoke::read_config( $config_name )
 
@@ -114,95 +116,6 @@ sub set_smoke_patchlevel {
         /^SMOKE[a-fA-F0-9]+$/
     , get_local_patches( $ddir, $verbose );
     @smokereg or set_local_patch( $ddir, "SMOKE$patch" );
-}
-
-=head2 run_smoke( [$continue[, @df_buildopts]] )
-
-C<run_smoke()> sets up de build environment and gets the private Policy
-file and build configurations and then runs the smoke stuff for all
-configurations.
-
-All arguments after the C<$continue> are taken as default buildoptions
-and passed to C<./Configure>.
-
-=cut
-
-sub run_smoke {
-    my $continue = shift;
-    defined $continue or $continue = $conf->{continue};
-
-    my @df_buildopts = @_ ? grep /^-[DUA]/ => @_ : ();
-    # We *always* want -Dusedevel!
-    push @df_buildopts, '-Dusedevel'
-        unless grep /^-Dusedevel$/ => @df_buildopts;
-    Test::Smoke::BuildCFG->config( dfopts => join " ", @df_buildopts );
-
-    my $patch = Test::Smoke::Util::get_patch( $conf->{ddir} );
-
-    { # I cannot find a better place to stick this (thanks Bram!)
-      # change 33961 introduced Test::Harness 3 for 5.10.x
-      # that needs different parsing, so set the config to do that
-      # 20081220; new patchlevels due to git; cannot test it like an int
-        if ( $conf->{perl_version} eq '5.10.x' ) {
-            $conf->{hasharness3} = 1;
-        }
-    }
-
-    my $logfile = File::Spec->catfile( $conf->{ddir}, 'mktest.out' );
-    my $BuildCFG = $continue
-        ? Test::Smoke::BuildCFG->continue( $logfile, $conf->{cfg},
-                                           v => $conf->{v} )
-        : Test::Smoke::BuildCFG->new( $conf->{cfg}, v => $conf->{v} );
-
-    local *LOG;
-    my $mode = $continue ? ">>" : ">";
-    open LOG, "$mode $logfile" or die "Cannot create 'mktest.out': $!";
-
-    my $Policy   = Test::Smoke::Policy->new( File::Spec->updir, $conf->{v},
-                                             $BuildCFG->policy_targets );
-
-    my $smoker   = Test::Smoke::Smoker->new( \*LOG, $conf );
-    $smoker->mark_in;
-
-    $conf->{v} && $conf->{defaultenv} and
-        $smoker->tty( "Running smoke tests without \$ENV{PERLIO}\n" );
-
-    my $harness_msg;
-    if ( $conf->{harnessonly} ) {
-        $harness_msg = "Running test suite only with 'harness'";
-        $conf->{harness3opts} and
-            $harness_msg .= " with HARNESS_OPTIONS=$conf->{harness3opts}";
-    }
-    $conf->{v} && $harness_msg and $smoker->tty( "$harness_msg.\n" );
-
-    chdir $conf->{ddir} or die "Cannot chdir($conf->{ddir}): $!";
-    unless ( $continue ) {
-        $smoker->make_distclean( );
-        $smoker->ttylog("Smoking patch $patch->[0] $patch->[1]\n");
-        $smoker->ttylog("Smoking branch $patch->[2]\n") if $patch->[2];
-        do_manifest_check( $conf->{ddir}, $smoker );
-        set_smoke_patchlevel( $conf->{ddir}, $patch->[0] );
-    }
-
-    foreach my $this_cfg ( $BuildCFG->configurations ) {
-        $smoker->mark_out; $smoker->mark_in;
-        if ( skip_config( $this_cfg ) ) {
-            $smoker->ttylog( "Skipping: '$this_cfg'\n" );
-            next;
-        }
-
-        $smoker->ttylog( join "\n",
-                              "", "Configuration: $this_cfg", "-" x 78, "" );
-        $smoker->smoke( $this_cfg, $Policy );
-    }
-
-    $smoker->ttylog( "Finished smoking $patch->[0] $patch->[1] $patch->[2]\n" );
-    $smoker->mark_out;
-
-    close LOG or do {
-        require Carp;
-        Carp::carp "Error on closing logfile: $!";
-   };
 }
 
 1;
