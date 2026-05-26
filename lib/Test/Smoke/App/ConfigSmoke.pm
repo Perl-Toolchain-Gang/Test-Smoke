@@ -36,9 +36,6 @@ This app will replace the old C<configsmoke.pl>.
 =cut
 
 use Data::Dumper;
-local $Data::Dumper::Indent = 1;
-local $Data::Dumper::Sortkeys = \&_sort_configkeys;
-local $Data::Dumper::Trailingcomma = 1; # perl-5.24.0 or DD-1.60
 
 =head2 Test::Smoke::App::ConfigSmoke->new()
 
@@ -199,8 +196,10 @@ sub write_config {
     delete($current_config{$_}) for @donot_save;
 
     # Write the actual config-file
+    local $Data::Dumper::Indent = 1;
     local $Data::Dumper::Terse = 1;
     local $Data::Dumper::Sortkeys = \&_sort_configkeys;
+    local $Data::Dumper::Trailingcomma = 1;
     (my $current_config = Dumper(\%current_config)) =~ s{\n*$}{};
     if ( open(my $fh, '>', $self->configfile) ) {
         print {$fh} "\$conf = $current_config;\n";
