@@ -72,7 +72,7 @@ There are four (4) ways to specify that patch.
 
 =over 4
 
-=item I<refernece to a SCALAR>
+=item I<reference to a SCALAR>
 
 The scalar holds the complete patch as literal text.
 
@@ -135,7 +135,7 @@ Constant: 2**MAX_FLAG_COUNT) - 1
 
 =item Test::Smoke::Patcher->new( $type => \%args );
 
-C<new()> crates the object. Valid types are B<single> and B<multi>.
+C<new()> creates the object. Valid types are B<single> and B<multi>.
 Valid keys for C<%args>:
 
     * ddir:     the build directory
@@ -152,11 +152,19 @@ sub new {
     my $proto = shift;
     my  $class = ref $proto || $proto;
 
-    my $type = lc shift;
-    unless ( $type && exists $CONFIG{valid_type}->{ $type } ) {
-        defined $type or $type = 'undef';
+    my $type;
+    my $check_arg = 0;
+    if (! defined $_[0] or !$_[0]) {
+        $type = 'undef';
         require Carp;
-        Carp::croak( "Invalid Patcher-type: '$type'" );
+        Carp::croak( "Patcher type not provided" );
+    }
+    else {
+        $type = lc shift;
+        unless ( exists $CONFIG{valid_type}->{ $type } ) {
+            require Carp;
+            Carp::croak( "Invalid Patcher-type: '$type'" );
+        }
     }
 
     my %args_raw = @_ ? UNIVERSAL::isa( $_[0], 'HASH' ) ? %{ $_[0] } : @_ : ();

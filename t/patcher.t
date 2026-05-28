@@ -12,7 +12,7 @@ use TestLib;
 use Cwd 'abs_path';
 use File::Temp 'tempdir';
 
-use Test::More tests => 41;
+use Test::More tests => 44;
 BEGIN { use_ok( 'Test::Smoke::Patcher' ) };
 my $verbose = exists $ENV{SMOKE_VERBOSE} ? $ENV{SMOKE_VERBOSE} : 0;
 
@@ -40,6 +40,51 @@ $verbose and diag( "Found patch: '$patch'" );
 my $testpatch = File::Spec->catfile( 't', 'test.patch' );
 my $curdir = abs_path('.');
 my $tmpdir = tempdir(CLEANUP => 1);
+
+{
+    # Error handling: patcher type invalid or missing
+
+    my $type;
+
+    $type = 'double';
+    eval {
+        my $patcher = Test::Smoke::Patcher->new(
+            $type => {
+                v         => $verbose,
+                -ddir     => File::Spec->catdir($tmpdir, 'perl'),
+                -patchbin => $patch,
+            }
+        );
+    };
+    like($@, qr/Invalid Patcher-type: '$type'/,
+        "Patcher->new() failed due to invalid type '$type'");
+
+    $type = undef;
+    eval {
+        my $patcher = Test::Smoke::Patcher->new(
+            $type => {
+                v         => $verbose,
+                -ddir     => File::Spec->catdir($tmpdir, 'perl'),
+                -patchbin => $patch,
+            }
+        );
+    };
+    like($@, qr/Patcher type not provided/,
+        "Patcher->new(): invalid second argument");
+
+    $type = '';
+    eval {
+        my $patcher = Test::Smoke::Patcher->new(
+            $type => {
+                v         => $verbose,
+                -ddir     => File::Spec->catdir($tmpdir, 'perl'),
+                -patchbin => $patch,
+            }
+        );
+    };
+    like($@, qr/Patcher type not provided/,
+        "Patcher->new(): invalid second argument");
+}
 
 SKIP: { # test Test::Smoke::Patcher->patch_single()
     my $to_skip = 13;
@@ -144,7 +189,7 @@ SKIP: { # Test multi mode
     select( (select(PINFO), $|++)[0] );
     print PINFO <<EOPINFO;
 $relpatch
-# Do some somments 
+# Do some comments
 # This is to take out #20001, so we can see what happend
 $relpatch;-R
 $relpatch
@@ -153,7 +198,7 @@ EOPINFO
     eval { $patcher->patch_multi( \*PINFO ) };
     ok( ! $@, "No Errors while running patch $@" );
     $newfile = get_file($tmpdir, qw( perl patchme.txt ));
-    like( $newfile, '/^VERSION == 20001$/m', "Conent OK" );
+    like( $newfile, '/^VERSION == 20001$/m', "Content OK" );
     close PINFO;
     1 while unlink $pinfo;
 
@@ -164,14 +209,14 @@ EOPINFO
     eval { $patcher->patch_multi( File::Spec->rel2abs($pinfo) ) };
     ok( ! $@, "No Errors while running patch $@" );
     $newfile = get_file($tmpdir, qw( perl patchme.txt ));
-    unlike( $newfile, '/^VERSION == 20001$/m', "Conent OK" );
+    unlike( $newfile, '/^VERSION == 20001$/m', "Content OK" );
     1 while unlink $pinfo;
 
     my $descr = '[PATCH] just testing comments';
     eval { $patcher->patch_single( $relpatch, '', $descr ) };
     ok ! $@, "Patch applied($descr) $@";
     $newfile = get_file($tmpdir, qw( perl patchme.txt ));
-    like( $newfile, '/^VERSION == 20001$/m', "Conent OK" );
+    like( $newfile, '/^VERSION == 20001$/m', "Content OK" );
     my $plevel = get_file($tmpdir, qw( perl patchlevel.h ));
     like $plevel, qq{/^\\s*,"\Q$descr\E"/m},
          "Description added to patchlevel.h";
