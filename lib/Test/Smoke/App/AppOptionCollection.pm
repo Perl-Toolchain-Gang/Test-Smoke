@@ -20,7 +20,7 @@ An optional list of L<Test::Smoke::App::AppOption> objects.
 
 =head3 Returns
 
-An instatiated object.
+An instantiated object.
 
 =head3 Exceptions
 
