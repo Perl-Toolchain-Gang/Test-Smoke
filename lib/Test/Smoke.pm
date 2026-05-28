@@ -126,7 +126,7 @@ sub set_smoke_patchlevel {
 
 =head2 run_smoke( [$continue[, @df_buildopts]] )
 
-C<run_smoke()> sets up de build environment and gets the private Policy
+C<run_smoke()> sets up the build environment and gets the private Policy
 file and build configurations and then runs the smoke stuff for all
 configurations.
 

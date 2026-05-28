@@ -18,7 +18,7 @@ before the actual copying.
 
 =head2 Test::Smoke::Syncer::Copy->new( %args )
 
-This crates the new object. Keys for C<%args>:
+This creates the new object. Keys for C<%args>:
 
   * ddir:    destination directory ( ./perl-current )
   * cdir:    directory to copy from ( undef )

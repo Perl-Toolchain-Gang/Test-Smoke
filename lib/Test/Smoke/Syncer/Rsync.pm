@@ -21,7 +21,7 @@ use Text::ParseWords;
 
 =head2 Test::Smoke::Syncer::Rsync->new( %args )
 
-This crates the new object. Keys for C<%args>:
+This creates the new object. Keys for C<%args>:
 
   * ddir:   destination directory ( ./perl-current )
   * source: the rsync source ( ftp.linux.activestate.com::perl-current )
