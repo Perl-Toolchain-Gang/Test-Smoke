@@ -267,7 +267,15 @@ sub create_smoker {
 
 =head2 $smoker->do_manifest_check()
 
-Calls Test::Smoke::SourceTree->check_MANIFEST().
+Calls L<Test::Smoke::SourceTree/check_MANIFEST> to verify that the
+source tree's MANIFEST is consistent with the files on disk.  Files
+named by the C<outfile> and C<rptfile> options and the fixed name
+C<patchlevel.bak> are excluded from the undeclared-file report.
+
+This is the modern OO version.  The legacy procedural counterpart
+lives in L<Test::Smoke/do_manifest_check> and differs in two ways:
+it hardcodes the exclusion list (C<mktest.out>, C<mktest.rpt>) and
+does not exclude C<patchlevel.bak>.
 
 =cut
 
