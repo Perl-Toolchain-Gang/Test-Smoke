@@ -203,7 +203,7 @@ REM Change drive-Letter, then directory
 for %%%%L in ( "%%WD%%" ) do %%%%~dL
 cd "%%WD%%"
 if "%%CFGNAME%%"  == "" set CFGNAME=%s
-%s %s -c "%CFGNAME%"
+%s %s -c "%%CFGNAME%%"
 if "%%LOCKFILE%%" == "" set LOCKFILE=%s
 if NOT EXIST %%LOCKFILE%% goto START_SMOKE
     FIND "%%CFGNAME%%" %%LOCKFILE%% > NUL:
