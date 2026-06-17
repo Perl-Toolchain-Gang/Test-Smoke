@@ -8,6 +8,7 @@ use Config;
 use Cwd;
 use File::Spec::Functions qw( :DEFAULT abs2rel rel2abs );
 use Capture::Tiny 'capture';
+use Scalar::Util 'blessed';
 use Test::Smoke::LogMixin;
 use Test::Smoke::Util qw( get_smoked_Config skip_filter );
 
@@ -149,7 +150,7 @@ sub new {
         Carp::croak(sprintf "Usage: %s->new( \\*FH, %%args )", __PACKAGE__);
     }
 
-    my %args_raw = @_ ? UNIVERSAL::isa( $_[0], 'HASH' ) ? %{ $_[0] } : @_ : ();
+    my %args_raw = @_ ? ref( $_[0] ) eq 'HASH' ? %{ $_[0] } : @_ : ();
 
     my %args = map {
         ( my $key = $_ ) =~ s/^-?(.+)$/lc $1/e;
@@ -398,7 +399,7 @@ sub handle_policy {
     my $self = shift;
     my( $policy, @substs ) = @_;
 
-    return unless UNIVERSAL::isa( $policy, 'Test::Smoke::Policy' );
+    return unless blessed( $policy ) && $policy->isa('Test::Smoke::Policy');
 
     $self->tty( "\nCopy Policy.sh ..." );
     $policy->reset_rules;

@@ -8,6 +8,7 @@ use base 'Test::Smoke::ObjectBase';
 
 use Carp;
 use Cwd qw< abs_path >;
+use Scalar::Util 'blessed';
 use Fcntl qw< :flock SEEK_SET >;
 use File::Spec::Functions qw< catfile file_name_is_absolute >;
 use Test::Smoke::LogMixin;
@@ -94,7 +95,7 @@ sub new {
     }
     die __PACKAGE__ . " must have $_ as a Test::Smoke::Poster in new!\n"
         unless defined($fields{poster})
-            && UNIVERSAL::isa($fields{poster}, 'Test::Smoke::Poster::Base');
+            && blessed($fields{poster}) && $fields{poster}->isa('Test::Smoke::Poster::Base');
 
     _make_absolute($_) for @fields{qw< qfile adir >};
 

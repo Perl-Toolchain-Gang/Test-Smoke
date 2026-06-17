@@ -5,6 +5,7 @@ use Net::FTP;
 use Cwd;
 use File::Path;
 use File::Spec::Functions qw( :DEFAULT abs2rel rel2abs );
+use Scalar::Util 'blessed';
 use Test::Smoke::Util qw( clean_filename time_in_hhmm );
 
 our $VERSION = '0.011';
@@ -78,7 +79,7 @@ sub  new {
     };
 
 
-    my %args_raw = @_ ? UNIVERSAL::isa( $_[0], 'HASH' ) ? %{ $_[0] } : @_ : ();
+    my %args_raw = @_ ? ref( $_[0] ) eq 'HASH' ? %{ $_[0] } : @_ : ();
 
     my %args = map {
         ( my $key = $_ ) =~ s/^-?(.+)$/lc $1/e;
@@ -139,7 +140,7 @@ Set-up the environment and call C<__do_mirror()>
 
 sub mirror {
     my $self = shift;
-    return unless UNIVERSAL::isa( $self->{client}, 'Net::FTP' );
+    return unless blessed( $self->{client} ) && $self->{client}->isa('Net::FTP');
 
     my( $fdir, $ddir, $cleanup ) = @_;
     my $cwd = cwd();
