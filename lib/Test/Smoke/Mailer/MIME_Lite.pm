@@ -37,6 +37,9 @@ C<mail()> sets up the message to be send by B<MIME::Lite>.
 sub mail {
     my $self = shift;
 
+    warn "MIME::Lite is discouraged by its maintainer; "
+       . "consider 'Mail::Sendmail' or 'sendmail' instead\n";
+
     eval { require MIME::Lite; };
 
     $self->{error} = $@ and return undef;
@@ -58,13 +61,21 @@ sub mail {
         my %authinfo = ();
         $authinfo{AuthUser} = $self->{msuser} if $self->{msuser};
         $authinfo{AuthPass} = $self->{mspass} if defined $self->{mspass};
-        MIME::Lite->send(
-            smtp       => $self->{mserver},
-            Port       => ($self->{msport} || 25),
-            FromSender => $self->{from},
-            Debug      => ($self->{v} > 1),
-            %authinfo,
-        );
+        eval {
+            MIME::Lite->send(
+                smtp       => $self->{mserver},
+                Port       => ($self->{msport} || 25),
+                FromSender => $self->{from},
+                Debug      => ($self->{v} > 1),
+                %authinfo,
+            );
+        };
+        if ($@) {
+            chomp(my $err = $@);
+            $err =~ s/ at \S+ line \d+\.\z//;
+            $self->{error} = "Problem configuring SMTP: $err";
+            return undef;
+        }
     }
 
     my $ml_msg = MIME::Lite->new( %message );
@@ -74,7 +85,15 @@ sub mail {
     $self->{v} > 1 and print "[MIME::Lite]\n";
     $self->{v} and print "Sending report to $self->{to} ";
 
-    $ml_msg->send or $self->{error} = "Problem sending mail";
+    my $ok = eval { $ml_msg->send };
+    if ($@) {
+        chomp(my $err = $@);
+        $err =~ s/ at \S+ line \d+\.\z//;
+        $self->{error} = "Problem sending mail: $err";
+    }
+    elsif (!$ok) {
+        $self->{error} = "Problem sending mail";
+    }
 
     $self->{v} and print $self->{error} ? "not OK\n" : "OK\n";
 
