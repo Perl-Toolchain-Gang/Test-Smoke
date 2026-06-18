@@ -41,7 +41,9 @@ sub run {
             v => $self->option('verbose'),
         );
         $self->log_info("==> Starting mailer");
-        $self->mailer->mail();
+        if (!$self->mailer->mail()) {
+            $self->log_warn("Mailer error: %s", $self->mailer->error);
+        }
     }
     else {
         $self->log_warn("==> Skipping mailer");
