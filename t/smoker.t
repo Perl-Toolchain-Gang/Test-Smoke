@@ -9,7 +9,7 @@ use Cwd;
 use lib 't';
 use TestLib;
 
-use Test::More tests => 76;
+use Test::More tests => 82;
 use_ok( 'Test::Smoke::Smoker' );
 
 my $debug   = exists $ENV{SMOKE_DEBUG} && $ENV{SMOKE_DEBUG};
@@ -861,6 +861,66 @@ EOOUT
     is keys %inconsistent, 1, "One inconsistent test result";
 }
 
+{
+    my $smoker = Test::Smoke::Smoker->new( \*LOG, v => $verbose );
+    isa_ok $smoker, 'Test::Smoke::Smoker';
+    my @harness3_test = split m/\n/, <<'EOHO';
+re/pat_advanced.t .. killed by signal
+
+Test Summary Report
+-------------------
+re/pat_advanced.t (Wstat: 9 (Signal: KILL) Tests: 1635 Failed: 0)
+  Non-zero wait status: 9
+  Parse errors: No plan found in TAP output
+Files=1, Tests=1635,  0 wallclock secs ( 0.01 usr  0.00 sys +  0.01 cusr  0.00 csys =  0.02 CPU)
+Result: FAIL
+EOHO
+
+    my %inconsistent = map +( $_ => 1 ) => grep length $_ => map {
+        m/(\S+\.t)\s+/ ? "../t/$1" : ''
+    } @harness3_test;
+
+    my $all_ok;
+    my $harness_out = $smoker->_parse_harness_output( \%inconsistent, $all_ok,
+                                                      @harness3_test );
+
+    is $harness_out, <<EOOUT, "Catch Non-zero wait status with parse errors";
+    ../t/re/pat_advanced.t......................................FAILED
+        Non-zero wait status: 9
+    ../t/re/pat_advanced.t......................................FAILED
+        No plan found in TAP output
+EOOUT
+    is keys %inconsistent, 0, "No inconsistent test result";
+}
+
+{
+    my $smoker = Test::Smoke::Smoker->new( \*LOG, v => $verbose );
+    isa_ok $smoker, 'Test::Smoke::Smoker';
+    my @harness3_test = split m/\n/, <<'EOHO';
+re/pat_advanced.t .. killed by signal
+
+Test Summary Report
+-------------------
+re/pat_advanced.t (Wstat: 9 (Signal: KILL) Tests: 1635 Failed: 0)
+  Non-zero wait status: 9
+Files=1, Tests=1635,  0 wallclock secs ( 0.01 usr  0.00 sys +  0.01 cusr  0.00 csys =  0.02 CPU)
+Result: FAIL
+EOHO
+
+    my %inconsistent = map +( $_ => 1 ) => grep length $_ => map {
+        m/(\S+\.t)\s+/ ? "../t/$1" : ''
+    } @harness3_test;
+
+    my $all_ok;
+    my $harness_out = $smoker->_parse_harness_output( \%inconsistent, $all_ok,
+                                                      @harness3_test );
+
+    is $harness_out, <<EOOUT, "Catch Non-zero wait status alone";
+    ../t/re/pat_advanced.t......................................FAILED
+        Non-zero wait status: 9
+EOOUT
+    is keys %inconsistent, 0, "No inconsistent test result";
+}
 
 { # test the set_skip_tests(), unset_skip_tests()
     my $src = catdir qw/ t ftppub perl-current /;
