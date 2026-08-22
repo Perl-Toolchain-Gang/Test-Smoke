@@ -897,35 +897,34 @@ SKIP: {
     ok -f $skip_tests, "skip_tests file exists";
 
     my $skip_test = catfile( $dst, 't', 'op', 'skip.t' );
+    my $lib_test  = catfile( $dst, 'lib', 't', 'skip.t' );
+    my $manifest  = catfile $dst, 'MANIFEST';
+    my $manifest_before = get_file( $manifest );
+
     $smoker->set_skip_tests;
-    ok -f catfile( $dst, 'MANIFEST.ORG'), "MANIFEST was copied";
 
     my $skip = qq[print "1..0 # SKIP Disabled by Test::Smoke];
     ok get_file($skip_test) =~ /^\Q$skip\E/,
        "t/op/skip.t had skip code added";
 
-    my @libext = grep m{^(?:lib|ext|cpan|dist)/} => @notest;
-    my $manifest = catfile $dst, 'MANIFEST';
-    my $manifiles = get_file( $manifest );
+    ok get_file($lib_test) =~ /^\Q$skip\E/,
+       "lib/t/skip.t had skip code added (no MANIFEST manipulation)";
 
-    my $ok = 1;
-    $ok &&= ! grep $manifiles =~ /^\Q$_\E/m => @libext;
-    ok $ok, "files removed from MANIFEST";
+    ok !-f catfile( $dst, 'MANIFEST.ORG'),
+       "MANIFEST was not copied (skip uses file modification, not MANIFEST removal)";
 
     $smoker->unset_skip_tests();
-
-    ok ! -f catfile( $dst, 'MANIFEST.ORG'), "MANIFEST.ORG was removed";
 
     ok get_file($skip_test) !~ /^\Q$skip\E/,
        "t/op/skip.t had skip code removed again";
 
-    my $files = get_file( $manifest );
+    ok get_file($lib_test) !~ /^\Q$skip\E/,
+       "lib/t/skip.t had skip code removed again";
 
-    $ok = 1;
-    $ok &&= grep $files =~ /^\Q$_\E/m => @libext;
-    ok $ok, "files back in MANIFEST";
+    is get_file( $manifest ), $manifest_before,
+       "MANIFEST unchanged after skip/unskip cycle";
 
-    1 while unlink $skip_tests;    
+    1 while unlink $skip_tests;
 }
     rmtree $dst, $verbose;
 }
