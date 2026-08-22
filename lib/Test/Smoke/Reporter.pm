@@ -514,7 +514,7 @@ sub _parse {
             next;
         }
 
-        if (/^\s+(?:Bad plan)|(?:No plan found)|^\s+(?:Non-zero exit status)/) {
+        if (/^\s+(?:Bad plan)|(?:No plan found)|^\s+(?:Non-zero (?:exit|wait) status)/) {
             if (ref $rpt{$cfgarg}->{$debug}{$tstenv}{failed}) {
                 push @{$rpt{$cfgarg}->{$debug}{$tstenv}{failed}}, $_;
                 s/^\s+//;
