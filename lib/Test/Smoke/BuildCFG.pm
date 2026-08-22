@@ -50,7 +50,7 @@ sub new {
 
     my $config = shift;
 
-    my %args_raw = @_ ? UNIVERSAL::isa( $_[0], 'HASH' ) ? %{ $_[0] } : @_ : ();
+    my %args_raw = @_ ? ref( $_[0] ) eq 'HASH' ? %{ $_[0] } : @_ : ();
 
     my %args = map {
         ( my $key = $_ ) =~ s/^-?(.+)$/lc $1/e;
@@ -357,11 +357,11 @@ Returns a list of policytargets from the policy substitution sections
 sub policy_targets {
     my $self = shift;
 
-    return unless UNIVERSAL::isa( $self->{_sections}, "ARRAY" );
+    return unless ref( $self->{_sections} ) eq "ARRAY";
 
     my @targets;
     for my $section ( @{ $self->{_sections} } ) {
-        next unless UNIVERSAL::isa( $section, "HASH" ) &&
+        next unless ref( $section ) eq "HASH" &&
                     $section->{policy_target};
         push @targets, $section->{policy_target};
     }
@@ -379,9 +379,9 @@ sub as_string {
     my $self = shift;
     my @sections;
     for my $section ( @{ $self->{_sections} } ) {
-        if ( UNIVERSAL::isa( $section, 'ARRAY' ) ) {
+        if ( ref( $section ) eq 'ARRAY' ) {
             push @sections, $section;
-        } elsif ( UNIVERSAL::isa( $section, 'HASH' ) ) {
+        } elsif ( ref( $section ) eq 'HASH' ) {
             push @sections, [
                 "/$section->{policy_target}/",
                 @{ $section->{args} },

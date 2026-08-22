@@ -80,7 +80,7 @@ sub new {
     my $proto = shift;
     my $class = ref $proto ? ref $proto : $proto;
 
-    my %args_raw = @_ ? UNIVERSAL::isa( $_[0], 'HASH' ) ? %{ $_[0] } : @_ : ();
+    my %args_raw = @_ ? ref( $_[0] ) eq 'HASH' ? %{ $_[0] } : @_ : ();
 
     my %args = map {
         ( my $key = $_ ) =~ s/^-?(.+)$/lc $1/e;
