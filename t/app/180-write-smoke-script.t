@@ -35,6 +35,25 @@ $Test::Smoke::LogMixin::USE_TIMESTAMP = 0;
     );
 }
 
+{ # write_smoke_script: MSWin32 branch generates .cmd via write_as_cmd
+    local $^O = 'MSWin32';
+    my $tmp = tempdir(CLEANUP => 1);
+    my $jcl = File::Spec->catfile($tmp, 'smokecurrent.cmd');
+    my $obj = FakeConfigSmoke->new(_smoke_script_value => $jcl);
+
+    open my $cap, '>', \my $out;
+    my $stdout = select $cap; $|++;
+    $obj->write_smoke_script('at', '22:25');
+    select $stdout;
+
+    like($out, qr/>> Created '\Q$jcl\E'/,       '"Created" line logged via log_info');
+    ok(-f $jcl,                                 '.cmd script file was written');
+
+    my $content = do { local $/; open my $fh, '<', $jcl or die $!; <$fh> };
+    like($content, qr/%CFGNAME%/,               'generated .cmd references %CFGNAME%');
+    like($content, qr/\@echo off/,              'generated .cmd starts with @echo off');
+}
+
 { # write_as_shell: happy path uses log_info for header and "Created" line
     my $tmp = tempdir(CLEANUP => 1);
     my $jcl = File::Spec->catfile($tmp, 'smokecurrent.sh');
