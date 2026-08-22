@@ -24,6 +24,7 @@ $conf = {
   'defaultenv' => 0,
   'perlio_only' => 0,
   'smokedb_url' => 'https://perl5.test-smoke.org/api/report',
+  'smokedb_token' => '',
   'poster' => 'curl',
   'send_log' => 'on_fail',
   'send_out' => 'never',
