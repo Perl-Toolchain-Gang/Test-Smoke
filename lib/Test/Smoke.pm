@@ -90,7 +90,14 @@ sub is_win32() { $^O eq "MSWin32" }
 =head2 do_manifest_check( $ddir, $smoker )
 
 C<do_manifest_check()> uses B<Test::Smoke::SourceTree> to do the
-MANIFEST check.
+MANIFEST check.  It excludes the hardcoded filenames C<mktest.out> and
+C<mktest.rpt> from the undeclared-file report.
+
+B<Note:> This is the legacy procedural version used by C<run_smoke()>.
+The modern OO equivalent is L<Test::Smoke::App::RunSmoke/do_manifest_check>,
+which additionally excludes C<patchlevel.bak> and reads the output/report
+filenames from the application's configuration rather than using hardcoded
+values.
 
 =cut
 
