@@ -59,7 +59,7 @@ It supports these options:
 
 =item * B<-Duseperlio>
 
-set USE_PERLIO = define (default) [should be depricated]
+set USE_PERLIO = define (default) [should be deprecated]
 
 =item * B<-Dusethreads>
 
@@ -1091,7 +1091,7 @@ sub get_ncpu {
 
         $cpus = "";
         require Carp;
-        Carp::carp( "get_ncpu: unknown operationg system" );
+        Carp::carp( "get_ncpu: unknown operating system" );
     }
 
     return $cpus ? sprintf( "%s cpu%s", $cpus, $cpus ne "1" ? 's' : '' ) : "";
@@ -1266,7 +1266,7 @@ sub run_regen_headers {
 
 Try to find an executable instance of C<$prog> in $ENV{PATH}.
 
-Rreturns a full file-path (with extension) to it.
+Returns a full file-path (with extension) to it.
 
 =cut
 
@@ -1345,7 +1345,7 @@ sub vms_whereis {
 =head2 clean_filename( $fname )
 
 C<clean_filename()> basically returns a vmsify() type of filename for
-VMS, and returns an upcase filename for case-ignorant filesystems.
+VMS, and returns an upcased filename for case-ignorant filesystems.
 
 =cut
 

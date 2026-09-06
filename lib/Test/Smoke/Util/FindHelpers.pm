@@ -45,7 +45,7 @@ our %EXPORT_TAGS = (
 
 =head2 has_module($module)
 
-Retuns true if the named module could be C<require>d.
+Returns true if the named module could be C<require>d.
 
 =cut
 
@@ -138,7 +138,7 @@ sub get_avail_tar {
 
 =head2 tar_fmt
 
-Returns the format with wich to gunzip and untar.
+Returns the format with which to gunzip and untar.
 (gzip -cd %s | tar -xf -) or (tar -xzf %s)
 
 =cut

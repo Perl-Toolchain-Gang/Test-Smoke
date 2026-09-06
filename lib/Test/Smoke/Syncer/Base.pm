@@ -51,7 +51,7 @@ sub sync {
     Carp::croak("Should have been implemented by '$class'");
 }
 
-=head2 $syncer->_clear_souce_tree( [$tree_dir] )
+=head2 $syncer->_clear_source_tree( [$tree_dir] )
 
 [ Method | private-ish ]
 

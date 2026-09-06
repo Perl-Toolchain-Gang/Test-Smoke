@@ -148,7 +148,7 @@ None.
 
 =head3 Returns
 
-A hashref with all options and theire coded default.
+A hashref with all options and their coded default.
 
 =head3 Exceptions
 

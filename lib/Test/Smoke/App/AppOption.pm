@@ -91,7 +91,7 @@ sub new {
     {
         croak("Option 'allow' must be an ArrayRef|CodeRef|RegExp when set");
     }
-    # had_default(): order == code < configfile < commandline
+    # had_default(): order == code < configfile < command line
 
     return bless $struct, $class;
 }

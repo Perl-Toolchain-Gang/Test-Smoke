@@ -10,7 +10,7 @@ use Data::Dumper;
 # and provide a fake FTP mechanism through them
 # For this there is the 't/ftppub' directory with:
 #     't/ftppub/perl-current' contains a source-tree
-# Now that we have controlable FTP (if you have Net::FTP), 
+# Now that we have controllable FTP (if you have Net::FTP),
 #
 #####
 

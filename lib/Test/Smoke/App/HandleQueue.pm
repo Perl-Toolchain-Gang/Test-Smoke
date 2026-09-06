@@ -27,7 +27,7 @@ Test::Smoke::App::HandleQueue - Queue handler for reports that failed to POST to
 =head1 DESCRIPTION
 
 This applet reads the current queue and tries to send every report in it. On
-success the item is removed, on failure it stiks around. After all items in the
+success the item is removed, on failure it sticks around. After all items in the
 queue have been looked at, the ones that do not exist in the archive directory
 will also be removed from the queue.
 

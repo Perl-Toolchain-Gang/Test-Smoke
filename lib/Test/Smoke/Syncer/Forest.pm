@@ -35,7 +35,7 @@ Keys for C<%args>:
 C<sync()> starts with a "traditional" sync according to {ftype} in {mdir}.
 It then creates a copy of {mdir} in {fdir} with hardlinks an tries to run
 the B<regen_headers.pl> script in {fdir}. This directory should now contain
-an up to date (working) source-tree wich again using hardlinks is copied
+an up to date (working) source-tree which again using hardlinks is copied
 to the destination directory {ddir}.
 
 

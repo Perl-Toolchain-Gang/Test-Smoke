@@ -25,7 +25,7 @@ use Test::Smoke::App::AppOption;
 
     # check that no '|' is appended after ->name (empty)
     is($o->option(''), '', "Change option to empty");
-    is($o->gol_option, 'klad', "GetOptLong otption (empty option)");
+    is($o->gol_option, 'klad', "GetOptLong option (empty option)");
 
     # check that no '|' is appended after ->name (option == !)
     is($o->option('!'), '!', "Change option to bang");

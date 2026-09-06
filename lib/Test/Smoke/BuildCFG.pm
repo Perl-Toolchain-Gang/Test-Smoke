@@ -27,7 +27,7 @@ Test::Smoke::BuildCFG - OO interface for handling build configurations
     my $bcfg = Test::Smoke::BuildCFG->new( $name );
 
     foreach my $config ( $bcfg->configurations ) {
-        # do somthing with $config
+        # do something with $config
     }
 
 =head1 DESCRIPTION
@@ -443,7 +443,7 @@ sub __get_smoked_configs {
 
 =head2 Test::Smoke::BuildCFG->default_buildcfg()
 
-This is a constant that returns a textversion of the default
+This is a constant that returns a text version of the default
 configuration.
 
 =cut
@@ -545,7 +545,7 @@ or
 
 This is a simple object that holds both the build arguments and the
 policy substitutions. The build arguments are stored as a string and
-the policy subtitutions are stored as a list of lists. Each substitution is
+the policy substitutions are stored as a list of lists. Each substitution is
 represented as a list with the two elements: the target and its substitute.
 
 =head1 METHODS
@@ -703,7 +703,7 @@ sub rm_arg {
 
 =head2 $config->vms
 
-Redo the the commandline switches in a VMSish way.
+Redo the command line switches in a VMSish way.
 
 =cut
 

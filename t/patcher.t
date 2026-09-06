@@ -190,7 +190,7 @@ SKIP: { # Test multi mode
     print PINFO <<EOPINFO;
 $relpatch
 # Do some comments
-# This is to take out #20001, so we can see what happend
+# This is to take out #20001, so we can see what happened
 $relpatch;-R
 $relpatch
 EOPINFO

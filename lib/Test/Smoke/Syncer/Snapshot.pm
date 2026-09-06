@@ -139,7 +139,7 @@ sub _extract_archive {
             last EXTRACT;
         };
 
-        # assume a commandline template for $self->{tar}
+        # assume a command line template for $self->{tar}
         $archive_base = $self->_extract_with_external;
     }
 

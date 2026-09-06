@@ -26,7 +26,7 @@ Keys for C<%args>:
 
 =head2 $mailer->mail( )
 
-C<mail()> sets up the commandline and body and pipes it to either the
+C<mail()> sets up the command line and body and pipes it to either the
 B<mail> or the B<mailx> program.
 
 =cut

@@ -11,7 +11,7 @@ use base 'Test::Smoke::Syncer::Base';
 
 This handles syncing with the B<File::Copy> module from a local
 directory. It uses the B<MANIFEST> file is the source directory
-to determine which fiels to copy. The current source-tree removed
+to determine which files to copy. The current source-tree removed
 before the actual copying.
 
 =cut
@@ -39,7 +39,7 @@ sub sync {
 
     $self->{cdir} eq $self->{ddir} and do {
         require Carp;
-        Carp::croak( "Sourcetree cannot be copied onto it self!" );
+        Carp::croak( "Source tree cannot be copied onto it self!" );
     };
 
     $self->pre_sync;

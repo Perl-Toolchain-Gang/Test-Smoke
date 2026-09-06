@@ -10,7 +10,7 @@ INST_TOP	*= $(INST_DRV)\perl
 #INST_ARCH	*= \$(ARCHNAME)
 
 # The thread/fork() stuff. These are turned on by default,
-# but for smoke purpuses, they will be turned off by default.
+# but for smoke purposes, they will be turned off by default.
 USE_MULTI	*= define
 USE_ITHREADS	*= define
 USE_IMP_SYS	*= define

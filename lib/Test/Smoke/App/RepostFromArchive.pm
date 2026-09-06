@@ -30,7 +30,7 @@ Interactive:
       8 jsn51634b463845a03d4f22b9d23f6c5e2fb98af9c8.jsn (2022-08-28 05:15:47 +0200)
       9 jsn305697f3995f7ddfba2e200c5deb2e274e1136c0.jsn (2022-08-27 05:15:34 +0200)
      10 jsn18fa8a6f818cbe2838cfe9b1bfa0c5d9c311930c.jsn (2022-08-26 05:15:41 +0200)
-   Type the numbers (with white space inbetween): 1 2 3
+   Type the numbers (with white space in-between): 1 2 3
 
 Or direct:
 
@@ -124,7 +124,7 @@ sub pick_reports {
 
     my $commits = $self->option('commit_sha');
     if (@$commits) {
-        # tranlate (partial) sha into filenames
+        # translate (partial) sha into filenames
         my @reports;
         for my $commit (@$commits) {
             my @candidates = grep { $_ =~ m{^ jsn $commit [0-9a-f]* \.jsn $}x } keys %$entries;
@@ -154,7 +154,7 @@ sub pick_reports {
                 localtime($entries->{ $short_list[$cnt - 1] }{mtime})
             );
     }
-    print "Type the numbers (with white space inbetween): ";
+    print "Type the numbers (with white space in-between): ";
     chomp(my $input = <STDIN>);
     my @picks = grep { m{^ [0-9]+ $}x && $_ >= 1 && $_ <= $max } split(" ", $input);
     for my $pick (@picks) {

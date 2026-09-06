@@ -31,7 +31,7 @@ Make a string representation of the argument passed.
 
 Arrays are represented with enclosing square brackets
 
-Hashes are represented with enclosing curly braces, where all te Key-Value-pairs
+Hashes are represented with enclosing curly braces, where all the Key-Value-pairs
 have enclosing parenthesis with a C<< => >> (fat comma) in-between.
 
     {(one => two), (three => [four, five]), (six => {(seven => eight)}, (nine => \ten))}

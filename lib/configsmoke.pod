@@ -264,7 +264,7 @@ only do a single pass C<< S<make test> >>.
 
 =head2 perlio_only
 
-C<perlio_only>, when set wil not run the tests with C<< $ENV{PERLIO}=stdio >>
+C<perlio_only>, when set will not run the tests with C<< $ENV{PERLIO}=stdio >>
 and only with C<< $ENV{PERLIO}=perlio >> (and with locale-setting if set).
 
 =head2 locale
@@ -462,7 +462,7 @@ will check for either the C<schtasks.exe> or C<at.exe> program.
 
 =item B<crontab>
 
-For C<crontab> we read the current entries and if we find ourselfs (the JCL) we
+For C<crontab> we read the current entries and if we find ourself (the JCL) we
 will comment that line out and add a new line.
 
 =item B<schtasks.exe>
@@ -522,7 +522,7 @@ asking if it is not there.
 =head2 PERL5OPT
 
 If you have a value for PERL5OPT set in the config environment, you
-could have it transferred tho the JCL. Do not bother
+could have it transferred to the JCL. Do not bother
 asking if it is not there.
 
 =head2 cfg

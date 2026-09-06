@@ -18,7 +18,7 @@ is( get_cfg_filename(), undef, "Return undef for no args" );
 is( get_cfg_filename( 'willnotexists' ), undef,
     "Return undef for unknown" );
 my $acfg = '../lib/Test/Smoke/perlcurrent.cfg';
-is( get_cfg_filename( $acfg ), $acfg, "Confirm existance ($acfg)" );
+is( get_cfg_filename( $acfg ), $acfg, "Confirm existence ($acfg)" );
 
 SKIP: {
     write_cfg_file( $cfg_name ) or skip "Can't create '$cfg_name'", 2;

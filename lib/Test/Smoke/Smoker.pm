@@ -952,7 +952,7 @@ sub _parse_harness_output {
 
 =head2 $self->_parse_harness3_output( $\%notok, $all_ok, @lines )
 
-Fator out the parsing of the Test::Harness 3 output, as it seems subject
+Factor out the parsing of the Test::Harness 3 output, as it seems subject
 to change.
 
 =cut
