@@ -1083,7 +1083,7 @@ sub rsyncbin {
         name       => 'rsync',                                         #old name
         option     => '=s',
         default    => 'rsync',                                         # you might want a path there
-        helptext   => "The name of the 'rsync' programe.",
+        helptext   => "The name of the 'rsync' program.",
         configtext => "Which 'rsync' binary do you want to use?",
         configtype => 'prompt_file',
         configdft  => sub { (_helper(whereis => ['rsync'])->())->[0] },
@@ -1255,7 +1255,7 @@ sub swbcc {
         name => 'swbcc',
         option => '=s',
         default => '-b',
-        helptext => 'The syntax of the commandline switch for BCC.',
+        helptext => 'The syntax of the command line switch for BCC.',
     );
 }
 
@@ -1264,7 +1264,7 @@ sub swcc {
         name => 'swcc',
         option => '=s',
         default => '-c',
-        helptext => 'The syntax of the commandline switch for CC.',
+        helptext => 'The syntax of the command line switch for CC.',
     );
 }
 

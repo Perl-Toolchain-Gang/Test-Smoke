@@ -15,7 +15,7 @@ Test::Smoke::App::SyncTree - Synchronise the perl source tree from a source.
 =head1 DESCRIPTION
 
 This module synchronises the smoke destination directory with a given source in a
-given way. The source depends on the synchonisation method.
+given way. The source depends on the synchronisation method.
 
 =head2 Synchronisers
 

@@ -392,7 +392,7 @@ EOHO
     ../t/op/test2.t.............................................PASSED
         2
 EOOUT
-    # The inconsitent hash should not be updated: harness only detected passedd todo tests
+    # The inconsistent hash should not be updated: harness only detected passed todo tests
     is keys %inconsistent, 2, "Two inconsistent test result";
 }
 
@@ -433,7 +433,7 @@ EOHO
     ../t/op/test2.t.............................................PASSED
         2
 EOOUT
-    # ../t/op/test2.t did not fail under harness; it should still be in the %inconsitent hash
+    # ../t/op/test2.t did not fail under harness; it should still be in the %inconsistent hash
     is keys %inconsistent, 1, "One inconsistent test result";
 }
 
@@ -469,7 +469,7 @@ EOHO
     ../t/op/test1.t.............................................PASSED
         2
 EOOUT
-    # ../t/op/test1.t did not fail under harness; it should still be in the %inconsitent hash
+    # ../t/op/test1.t did not fail under harness; it should still be in the %inconsistent hash
     is keys %inconsistent, 1, "One inconsistent test result";
 }
 
@@ -553,7 +553,7 @@ EOHO
     ../t/op/test2.t.............................................PASSED
         2
 EOOUT
-    # ../t/op/test1.t did not fail under harness; it should still be in the %inconsitent hash
+    # ../t/op/test1.t did not fail under harness; it should still be in the %inconsistent hash
     is keys %inconsistent, 1, "One inconsistent test result";
 }
 

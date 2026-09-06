@@ -103,7 +103,7 @@ None
 
 Context aware list or scalar.
 
-If any error occured, C<< $self->exitcode >> is set.
+If any error occurred, C<< $self->exitcode >> is set.
 
 =cut
 

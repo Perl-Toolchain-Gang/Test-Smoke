@@ -448,7 +448,7 @@ sub prompt_file {
     GETFILE: {
         my $file = $self->prompt( $option );
 
-        # thaks to perlfaq5
+        # thanks to perlfaq5
         $file =~ s{^ ~ ([^/]*)}
                   {$1 ? ( getpwnam $1 )[7] :
                    ( $ENV{HOME} || $ENV{LOGDIR} ||

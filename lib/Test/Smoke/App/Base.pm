@@ -153,7 +153,7 @@ sub show_config_option {
 
 =head2 $app->process_options()
 
-This process constists of three (3) steps:
+This process consists of three (3) steps:
 
 =over
 

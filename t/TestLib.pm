@@ -167,7 +167,7 @@ sub find_a_patch {
 
 =item find_unzip()
 
-Check C<< wheris( 'gzip' ) >> or C<< eval{ require Compress::Zlib } >>.
+Check C<< whereis( 'gzip' ) >> or C<< eval{ require Compress::Zlib } >>.
 
 =cut
 

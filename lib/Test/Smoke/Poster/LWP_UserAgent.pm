@@ -20,7 +20,7 @@ This is a subclass of L<Test::Smoke::Poster::Base>.
 
 =over
 
-=item ua_timeout => a timeout te feed to L<LWP::UserAgent>.
+=item ua_timeout => a timeout to feed to L<LWP::UserAgent>.
 
 =back
 

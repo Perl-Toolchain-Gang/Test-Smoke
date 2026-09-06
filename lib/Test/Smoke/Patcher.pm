@@ -94,9 +94,9 @@ Relative paths are rooted at the builddir (B<ddir> attribute).
 
 =item B<multi> mode
 
-The B<pfile> attribute is a pointer to a recource that contains filenames
+The B<pfile> attribute is a pointer to a resource that contains filenames
 of patches.
-The format of this recource is one filename per line optionally followed
+The format of this resource is one filename per line optionally followed
 by a semi-colon (;) and switches for the patch program.
 
 The patch-resource can also be specified in four (4) ways.
@@ -394,7 +394,7 @@ sub patch_multi {
 =item $self->_make_opts( $switches )
 
 C<_make_opts()> just creates a string of options to pass to the
-B<patch> program. Some implementations of patch do not grog '-u',
+B<patch> program. Some implementations of patch do not grok '-u',
 so be careful!
 
 =cut

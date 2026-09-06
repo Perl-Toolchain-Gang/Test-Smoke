@@ -62,7 +62,7 @@ sub new {
 
 =head2 $poster->agent_string()
 
-Class and intstance method.
+Class and instance method.
 
 =head3 Arguments
 
