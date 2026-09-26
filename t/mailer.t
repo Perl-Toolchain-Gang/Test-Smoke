@@ -11,7 +11,7 @@ use lib $findbin;
 use lib File::Spec->catdir( $findbin, File::Spec->updir, 'inc' );
 use TestLib;
 
-use Test::More tests => 32;
+use Test::More tests => 42;
 
 my $eg_config = { plevel => 19000, os => 'linux', osvers => '2.4.18-4g',
                   arch => 'i686/1 cpu', sum => 'PASS', version => '5.9.0',
@@ -198,6 +198,65 @@ SKIP: {
 
     is( $subject, $subj, "Read the report: $subject" );
     is( $mailer->{body}, $report, "Report read back ok" );
+    1 while unlink File::Spec->catfile( 't', 'mktest.rpt' );
+}
+
+SKIP: {
+    my $mhowto = 'MIME::Lite';
+    local $@;
+    my $load_error = do {
+        eval "require $mhowto";
+        $@;
+    };
+    $load_error and skip "Cannot load 'MIME::Lite'", 10;
+    write_report( $eg_config ) or skip "Cannot write report", 10;
+
+    my $mailer = Test::Smoke::Mailer->new( $mhowto => {
+        ddir => 't',
+        cc   => 'abeltje@test-smoke.org',
+    } );
+
+    isa_ok( $mailer, 'Test::Smoke::Mailer::Base' );
+    isa_ok( $mailer, 'Test::Smoke::Mailer::MIME_Lite' );
+
+    my $report = create_report( $eg_config );
+    my $subject = $mailer->fetch_report();
+
+    my @config = parse_report_Config( $mailer->{body} );
+    my @conf = @{ $eg_config }{qw(version plevel os osvers arch sum branch)};
+
+    is_deeply( \@config, \@conf, "Config..." );
+    my $subj = sprintf "Smoke [%s] %s %s %s %s (%s)", @conf[6, 1, 5, 2, 3, 4];
+
+    is( $subject, $subj, "Read the report: $subject" );
+    is( $mailer->{body}, $report, "Report read back ok" );
+
+    is( $mailer->_get_cc( $subject ), '',
+        "p5p not added to cc-list [--noccp5p_onfail]" );
+    $mailer->{ccp5p_onfail} = 1;
+    is( $mailer->_get_cc( $subject ), '',
+        "p5p not added to cc-list [PASS]" );
+
+    # Test error handling: send() dies should be caught, not propagated
+    {
+        my @warnings;
+        local $SIG{__WARN__} = sub { push @warnings, $_[0] };
+        no warnings 'redefine';
+        local *MIME::Lite::send = sub { die "SMTP connection refused" };
+
+        my $mailer2 = Test::Smoke::Mailer->new( $mhowto => {
+            ddir    => 't',
+            mserver => '',
+            v       => 0,
+        } );
+        my $ret = $mailer2->mail();
+        ok( !$ret, "mail() returns false when send() dies" );
+        like( $mailer2->error(), qr/SMTP connection refused/,
+            "Error message captured from die" );
+        ok( scalar(grep { /discouraged/ } @warnings),
+            "Deprecation warning emitted" );
+    }
+
     1 while unlink File::Spec->catfile( 't', 'mktest.rpt' );
 }
 
