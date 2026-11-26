@@ -1,13 +1,5 @@
 =pod
 
-=begin Instruction
-
-After editing, please do not forget to run:
-
-    pod2markdown lib/configsmoke.pod > HOWTO.md
-
-=end Instruction
-
 =head1 NAME
 
 configsmoke - Explain the options during configuration.
@@ -59,7 +51,7 @@ By default the configuration file created is called F<smokecurrent_config>,
 this can be changed by specifying the C<< -c <prefix> >> switch at the command
 line.
 
-    $ perl ../smoke/configsmoke.pl -c mysmoke
+    $ perl ../smoke/tsconfigsmoke.pl -c mysmoke
 
 will create F<mysmoke_config> (in the current directory) as the configuration
 file and use C<mysmoke> as prefix for related files.
