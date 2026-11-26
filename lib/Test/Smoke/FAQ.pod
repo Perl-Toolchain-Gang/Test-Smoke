@@ -361,15 +361,10 @@ The mailinglist also has a mirror on usenet:
 
 Posts to the newsgroup will also be mirrored on the mailinglist.
 
-=item Google groups
-
-The newsgroup is mirrored on Google groups:
-L<http://groups.google.com/group/perl.daily-build.reports>
-
 =item The usenet WWW archive
 
 The usenet mirror also has an archive on the web:
-L<http://www.nntp.perl.org/group/perl.daily-build.reports>
+L<https://www.nntp.perl.org/group/perl.daily-build.reports/>
 
 =back
 
