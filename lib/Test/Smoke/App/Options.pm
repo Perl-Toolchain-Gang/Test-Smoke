@@ -565,8 +565,8 @@ sub snapurl {
         name       => 'snapurl',
         option     => '=s',
         default    => "$blead",
-        helptext   => "The URL with path",
-        configtext => "What is the URL of the delivery?",
+        helptext   => "The URL with path to snapshot archive",
+        configtext => "What is the URL of the snapshot to download from?",
         configalt  => sub { [] },
         configord  => 1,
     );
@@ -577,8 +577,8 @@ sub snaptar {
         name       => 'snaptar',
         option     => '=s',
         default    => '',
-        helptext   => "The tar/zip command to unarchive",
-        configtext => "What is the tar/zip command to use to unarchive the delivery?",
+        helptext   => "The tar/zip command to unarchive, including flags",
+        configtext => "What is the tar/zip command, including flags, to use to unarchive the downloaded snapshot?",
         configalt  => sub { [] },
         configord  => 1,
     );
