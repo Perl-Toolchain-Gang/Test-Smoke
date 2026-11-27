@@ -157,9 +157,11 @@ run time of Test::Smoke.
 
 =item B<Reports>
 
+    https://perl5.test-smoke.org/
+    http://perl.develop-help.com
     <daily-build-reports@perl.org>
         [subscribe: <daily-build-reports-subscribe@perl.org>]
-    http://www.nntp.perl.org/group/perl.daily-build.reports
+    http://www.nntp.perl.org/group/perl.daily-build.reports/
     news:nntp.perl.org/perl.daily-build.reports
 
 =item B<Others>
@@ -169,8 +171,9 @@ run time of Test::Smoke.
 
 =item B<CoreSmokeDB>
 
-We also keep a database of smokereports that are created by Test::Smoke
-1.58 or higher.
+A database of smokereports submitted via the HTTP API is maintained.
+The database contains reports submitted with Test::Smoke version 1.72
+onwards.
 
     https://perl5.test-smoke.org/
 
