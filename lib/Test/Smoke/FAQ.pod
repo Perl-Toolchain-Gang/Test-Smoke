@@ -341,12 +341,20 @@ same directory.
 
 =head2 Where do the reports go?
 
-To the address configured in F<tsconfigsmoke.pl>. The default is
-<smokers-reports@perl.org>.
+To the addresses configured in F<smokecurrent_config>.
+For HTTPS the default is <https://perl5.test-smoke.org/api/report>.
+For email the default is <daily-build-reports@perl.org>.
 
 There are several ways to monitor the reports send in:
 
 =over 4
+
+=item Visit the web frontends
+
+There are currently two frontends which present the information
+in CoreSmokeDB in different visual styles.
+
+They are <https://perl5.test-smoke.org> and <https://perl.develop-help.com>.
 
 =item Subscribe to the mailinglist
 
