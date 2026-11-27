@@ -1353,7 +1353,7 @@ sub v {
         default    => 1,
         allow      => [0, 1, 2],
         helptext   => "Log-level during smoke",
-        configtext => "How verbose do you want the output?",
+        configtext => "How verbose do you want the output? (values are in ascending order)",
         configalt  => sub { [0, 1, 2] },
     );
 }

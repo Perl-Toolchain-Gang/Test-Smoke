@@ -479,8 +479,9 @@ This is a C<HH::MM> formated time.
 
 =head2 v
 
-This option indicates the verbosity towards the logfile (B<lfile>) and can be
-set to: I<0|1|2>, the default is I<1>.
+This option sets the verbosity level of information saved in the logfile (B<lfile>).
+It can be set to: I<0|1|2>, the default is I<1>.
+In ascending order, I<2> is the highest level of verbosity.
 
 =head2 smartsmoke
 
